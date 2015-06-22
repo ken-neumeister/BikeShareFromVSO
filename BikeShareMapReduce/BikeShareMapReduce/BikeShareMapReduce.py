@@ -54,55 +54,61 @@ def record_station(record_time, station_id, subscriber_id, bike_count, station_d
     else :
         station_dict[station_key] = bike_count
 
-def parse_traffic_file(input_file, traffic_out_file, station_out_file, quant, max_dur, station_dict, subscriber_dict) :
-    with open(input_file, 'r', newline = '') as f :
-        csv_reader = csv.reader(f, delimiter=',')
-        header_row = False
-        linecount = 0
-        col_names = {}
-        station_bikes = {}
-        traffic_bikes = {}
-        for row in csv_reader:
-            if header_row == False :
-                for i in range(0, len(row)):
-                    col_names[row[i]] = i
-                header_row = True
+def parse_traffic_file(input_file, traffic_out_file, station_out_file, norm_traffic_file,
+                       quant, max_dur, station_dict, subscriber_dict) :
+    with open(norm_traffic_file, 'w', newline='') as fnorm :
+        norm_writer = csv.writer(fnorm, delimiter=',')
+        row = ['duration','Start.time','Start.station','End.time','End.station','Bike.number','Subscription.id']
+        norm_writer.writerow(row)
+        with open(input_file, 'r', newline = '') as f :
+            csv_reader = csv.reader(f, delimiter=',')
+            header_row = False
+            linecount = 0
+            col_names = {}
+            station_bikes = {}
+            traffic_bikes = {}
+            for row in csv_reader:
+                if header_row == False :
+                    for i in range(0, len(row)):
+                        col_names[row[i]] = i
+                    header_row = True
+                    linecount += 1
+                    continue
+                start_station = row[col_names['Start station']]
+                start_id = station_dict[start_station]
+                end_station = row[col_names['End station']]
+                end_id = station_dict[end_station]
+
+                subscription_type = row[col_names['Subscription Type']]
+                subscription_id = subscriber_dict[subscription_type]
+
+                start_date = row[col_names['Start date']]
+                start_time = calendar.timegm(time.strptime(start_date, "%m/%d/%Y %H:%M"))
+                end_date = row[col_names['End date']]
+                end_time = calendar.timegm(time.strptime(end_date, "%m/%d/%Y %H:%M"))
+                # revise to include subscriber
+                record_station(math.floor(start_time/quant)*quant, start_id, subscription_id, -1, station_bikes)
+                record_station(math.floor(end_time/quant)*quant, end_id, subscription_id, 1, station_bikes)
+
+                duration = row[col_names['Total duration (ms)']]
+                bike_number = row[col_names['Bike number']]
+                # record normalized data
+                row = [duration,start_time,start_id,end_time,end_id,bike_number,subscription_id]
+                norm_writer.writerow(row)
+
+
+                computed_duration = end_time - start_time
+                if computed_duration <= max_dur :
+                    distr_bike(start_time, end_time, quant, start_id, end_id, subscription_id, "nonstop", traffic_bikes)
+                else :
+                    distr_bike(start_time, start_time+(max_dur/2), quant, start_id, end_id, subscription_id, "begin", traffic_bikes)
+                    distr_bike(end_time-(max_dur/2), end_time, quant, start_id, end_id, subscription_id, "end", traffic_bikes)
+                    record_station(math.floor((start_time+2700)/quant)*quant, -1, subscription_id, 1, station_bikes)
+                    record_station(math.floor((end_time-2700)/quant)*quant, -1, subscription_id, -1, station_bikes)
+
                 linecount += 1
-                continue
-            start_station = row[col_names['Start station']]
-            start_id = station_dict[start_station]
-            end_station = row[col_names['End station']]
-            end_id = station_dict[end_station]
-
-            subscription_type = row[col_names['Subscription Type']]
-            subscription_id = subscriber_dict[subscription_type]
-
-            start_date = row[col_names['Start date']]
-            start_time = calendar.timegm(time.strptime(start_date, "%m/%d/%Y %H:%M"))
-            end_date = row[col_names['End date']]
-            end_time = calendar.timegm(time.strptime(end_date, "%m/%d/%Y %H:%M"))
-            # revise to include subscriber
-            record_station(math.floor(start_time/quant)*quant, start_id, subscription_id, -1, station_bikes)
-            record_station(math.floor(end_time/quant)*quant, end_id, subscription_id, 1, station_bikes)
-
-            #if duration.isnumeric == False or int(duration) > 5400000 :
-            #duration = row[col_names['Total duration (ms)']]
-            #    # Several extremely long trips observed probably involving stop-overs
-            #    # focus on this study is for station-to-station trips
-            #    continue
-
-            computed_duration = end_time - start_time
-            if computed_duration <= max_dur :
-                distr_bike(start_time, end_time, quant, start_id, end_id, subscription_id, "nonstop", traffic_bikes)
-            else :
-                distr_bike(start_time, start_time+(max_dur/2), quant, start_id, end_id, subscription_id, "begin", traffic_bikes)
-                distr_bike(end_time-(max_dur/2), end_time, quant, start_id, end_id, subscription_id, "end", traffic_bikes)
-                record_station(math.floor((start_time+2700)/quant)*quant, -1, subscription_id, 1, station_bikes)
-                record_station(math.floor((end_time-2700)/quant)*quant, -1, subscription_id, -1, station_bikes)
-
-            linecount += 1
-            #if linecount > 1000 :
-            #    break
+                #if linecount > 1000 :
+                #    break
 
     with open(station_out_file, 'w', newline = '') as f :
         csv_writer = csv.writer(f, delimiter=',')
@@ -140,10 +146,12 @@ if __name__ == "__main__" :
         print ('Failed to find first entry in subscribers')
     
     traffic_file = data_path + r"\2015-Q1-Trips-History-Data.csv"
-    parsed_traffic_file = data_path + r"\2015-Q1-Parsed-Trips_v01.csv"
-    parsed_station_file = data_path + r"\2015-Q1-Parsed_Stations_v01.csv"
+    parsed_traffic_file = data_path + r"\2015-Q1-Parsed-Trips_v02.csv"
+    parsed_station_file = data_path + r"\2015-Q1-Parsed_Stations_v02.csv"
+    norm_traffic_file = data_path + r"\2015-Q1-Trips-History-Norm_v02.csv"
     quantization = 600
     max_dur = 3*3600 # more than 3 hours assume trip had a stop
-    parse_traffic_file(traffic_file, parsed_traffic_file, parsed_station_file, quantization, max_dur, station_dict, subscriber_dict)
+    parse_traffic_file(traffic_file, parsed_traffic_file, parsed_station_file, norm_traffic_file,
+                       quantization, max_dur, station_dict, subscriber_dict)
 
 
