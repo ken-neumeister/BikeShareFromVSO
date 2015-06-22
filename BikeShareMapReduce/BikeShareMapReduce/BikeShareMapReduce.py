@@ -14,6 +14,19 @@ def read_stations(station_file, station_dict) :
                 continue
             station_dict[row[col_names['station.name']]] = row[col_names['station.id']]
 
+def read_subscribers(subscriber_file, subscriber_dict) :
+    with open(subscriber_file, 'r', newline = '') as f :
+        csv_reader = csv.reader(f, delimiter=',')
+        header_row = False
+        col_names  = {}
+        for row in csv_reader:
+            if header_row == False :
+                for i in range(0, len(row)):
+                    col_names[row[i]] = i
+                header_row = True
+                continue
+            subscriber_dict[row[col_names['Subscriber.type']]] = row[col_names['Subscriber.id']]
+
 
 if __name__ == "__main__" :
     station_dict = {}
@@ -25,3 +38,10 @@ if __name__ == "__main__" :
     except AssertionError:
         print ('Failed to find first entry in stations')
     subscriber_file = data_path + r"\subscribers.csv"
+    subscriber_dict = {}
+    read_subscribers(subscriber_file, subscriber_dict)
+    try: 
+        assert(subscriber_dict['Casual'] == '1')
+    except AssertionError:
+        print ('Failed to find first entry in subscribers')
+    
