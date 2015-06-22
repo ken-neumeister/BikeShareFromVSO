@@ -58,7 +58,7 @@ def parse_traffic_file(input_file, traffic_out_file, station_out_file, quant, st
             start_time = calendar.timegm(time.strptime(start_date, "%m/%d/%Y %H:%M"))
             end_date = row[col_names['End date']]
             end_time = calendar.timegm(time.strptime(end_date, "%m/%d/%Y %H:%M"))
-
+            # revise to include subscriber
             station_key = '{:0},{}'.format(math.floor(start_time/quant)*quant, start_id)
             if station_key in station_bikes :
                 station_bikes[station_key] -= 1
