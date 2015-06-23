@@ -24,31 +24,6 @@
   <ItemGroup>
     <Compile Include="BikeShareMapReduce.py" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="workingfiles\" />
-    <Folder Include="workingfiles\Bikeshare\" />
-    <Folder Include="workingfiles\Bikeshare\Bikeshare\" />
-    <Folder Include="workingfiles\Bikeshare\Bikeshare\bin\" />
-    <Folder Include="workingfiles\Bikeshare\Bikeshare\bin\Development\" />
-    <Folder Include="workingfiles\Bikeshare\Bikeshare\obj\" />
-    <Folder Include="workingfiles\Bikeshare\Bikeshare\obj\Development\" />
-    <Folder Include="workingfiles\queries\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="workingfiles\Bikeshare\Bikeshare.sln" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare.suo" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\Bikeshare.database" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\Bikeshare.dtproj" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\Bikeshare.dtproj.user" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\bin\Development\Bikeshare.ispac" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\obj\Development\Bikeshare.dtproj" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\obj\Development\BuildLog.xml" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\obj\Development\Package.dtsx" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\obj\Development\Project.params" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\Package.dtsx" />
-    <Content Include="workingfiles\Bikeshare\Bikeshare\Project.params" />
-    <Content Include="workingfiles\queries\alter station_pair_distance_direction.sql" />
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
