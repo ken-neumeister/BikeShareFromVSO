@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "BikeShareMapReduce", "BikeShareMapReduce\BikeShareMapReduce.pyproj", "{0BECDDEB-B87C-4909-AD69-5A4C74C0FEDD}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "StationPairDistance", "StationPairDistance\StationPairDistance.pyproj", "{863A5462-3A56-44FC-91E5-5A2AC0D08B12}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0BECDDEB-B87C-4909-AD69-5A4C74C0FEDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0BECDDEB-B87C-4909-AD69-5A4C74C0FEDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{863A5462-3A56-44FC-91E5-5A2AC0D08B12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{863A5462-3A56-44FC-91E5-5A2AC0D08B12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
