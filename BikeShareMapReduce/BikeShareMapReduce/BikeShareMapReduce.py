@@ -34,15 +34,17 @@ def read_subscribers(subscriber_file, subscriber_dict) :
 def distr_bike(start_time, end_time, quant, start_id, end_id, subscription_id, trip_cat, traffic_bikes) :
     computed_duration = end_time - start_time
     # need to handle this outside of loop because range will not cycle if first 2 numbers identical
-    if computed_duration == 0:
+    q_start = math.floor(start_time/quant)*quant
+    q_end = math.floor(end_time/quant)*quant
+    if (computed_duration == 0) or (q_start == q_end) :
         # tbd refactor key handing to a function call
-        bike_key = "{:0},{},{},{},{}".format(math.floor(start_time/quant)*quant,start_id,end_id,subscription_id,trip_cat)
+        bike_key = "{:0},{},{},{},{}".format(q_start,start_id,end_id,subscription_id,trip_cat)
         if bike_key in traffic_bikes :
             traffic_bikes[bike_key] += 1
         else :
             traffic_bikes[bike_key] = 1
     else :
-        for t in range(math.floor(start_time/quant)*quant, math.floor(end_time/quant)*quant, quant) :
+        for t in range(q_start, q_end, quant) :
             t_begin = max(t, start_time)
             t_end = min(t+quant-1, end_time)
             if computed_duration == 0 :
