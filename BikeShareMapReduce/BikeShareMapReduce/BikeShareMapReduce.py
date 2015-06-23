@@ -33,18 +33,27 @@ def read_subscribers(subscriber_file, subscriber_dict) :
 
 def distr_bike(start_time, end_time, quant, start_id, end_id, subscription_id, trip_cat, traffic_bikes) :
     computed_duration = end_time - start_time
-    for t in range(math.floor(start_time/quant)*quant, math.floor(end_time/quant)*quant, quant) :
-        t_begin = max(t, start_time)
-        t_end = min(t+quant-1, end_time)
-        if computed_duration == 0 :
-            t_factor = 1
-        else :
-            t_factor = (t_end - t_begin) / computed_duration
-        bike_key = "{:0},{},{},{},{}".format(t,start_id,end_id,subscription_id,trip_cat)
+    # need to handle this outside of loop because range will not cycle if first 2 numbers identical
+    if computed_duration == 0:
+        # tbd refactor key handing to a function call
+        bike_key = "{:0},{},{},{},{}".format(math.floor(start_time/quant)*quant,start_id,end_id,subscription_id,trip_cat)
         if bike_key in traffic_bikes :
-            traffic_bikes[bike_key] += t_factor
+            traffic_bikes[bike_key] += 1
         else :
-            traffic_bikes[bike_key] = t_factor
+            traffic_bikes[bike_key] = 1
+    else :
+        for t in range(math.floor(start_time/quant)*quant, math.floor(end_time/quant)*quant, quant) :
+            t_begin = max(t, start_time)
+            t_end = min(t+quant-1, end_time)
+            if computed_duration == 0 :
+                t_factor = 1
+            else :
+                t_factor = (t_end - t_begin) / computed_duration
+            bike_key = "{:0},{},{},{},{}".format(t,start_id,end_id,subscription_id,trip_cat)
+            if bike_key in traffic_bikes :
+                traffic_bikes[bike_key] += t_factor
+            else :
+                traffic_bikes[bike_key] = t_factor
 
 def record_station(record_time, station_id, subscriber_id, bike_count, station_dict):
     # start_time/quant)*quant, start_id, subscriber_id, -1, station_bikes
@@ -146,9 +155,9 @@ if __name__ == "__main__" :
         print ('Failed to find first entry in subscribers')
     
     traffic_file = data_path + r"\2015-Q1-Trips-History-Data.csv"
-    parsed_traffic_file = data_path + r"\2015-Q1-Parsed-Trips_v02.csv"
-    parsed_station_file = data_path + r"\2015-Q1-Parsed_Stations_v02.csv"
-    norm_traffic_file = data_path + r"\2015-Q1-Trips-History-Norm_v02.csv"
+    parsed_traffic_file = data_path + r"\2015-Q1-Parsed-Trips_v03.csv"
+    parsed_station_file = data_path + r"\2015-Q1-Parsed_Stations_v03.csv"
+    norm_traffic_file = data_path + r"\2015-Q1-Trips-History-Norm_v03.csv"
     quantization = 600
     max_dur = 3*3600 # more than 3 hours assume trip had a stop
     parse_traffic_file(traffic_file, parsed_traffic_file, parsed_station_file, norm_traffic_file,
