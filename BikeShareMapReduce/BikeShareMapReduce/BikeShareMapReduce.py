@@ -35,7 +35,7 @@ def distr_bike(start_time, end_time, quant, start_id, end_id, subscription_id, t
     computed_duration = end_time - start_time
     # need to handle this outside of loop because range will not cycle if first 2 numbers identical
     q_start = math.floor(start_time/quant)*quant
-    q_end = math.floor(end_time/quant)*quant
+    q_end = math.floor(end_time/quant)*quant 
     total_distributed = 0
     if (computed_duration == 0) or (q_start == q_end) :
         # tbd refactor key handing to a function call
@@ -46,9 +46,9 @@ def distr_bike(start_time, end_time, quant, start_id, end_id, subscription_id, t
             traffic_bikes[bike_key] = 1
         total_distributed = 1
     else :
-        for t in range(q_start, q_end, quant) :
+        for t in range(q_start, q_end+quant, quant) :
             t_begin = max(t, start_time)
-            t_end = min(t+quant-1, end_time)
+            t_end = min(t+quant, end_time)
             if computed_duration == 0 :
                 t_factor = 1
             else :
@@ -83,11 +83,11 @@ def parse_traffic_file(input_file, traffic_out_file, station_out_file, norm_traf
             station_bikes = {}
             traffic_bikes = {}
             for row in csv_reader:
+                linecount += 1
                 if header_row == False :
                     for i in range(0, len(row)):
                         col_names[row[i]] = i
                     header_row = True
-                    linecount += 1
                     continue
                 start_station = row[col_names['Start station']]
                 start_id = station_dict[start_station]
@@ -114,14 +114,19 @@ def parse_traffic_file(input_file, traffic_out_file, station_out_file, norm_traf
 
                 computed_duration = end_time - start_time
                 if computed_duration <= max_dur :
-                    distr_bike(start_time, end_time, quant, start_id, end_id, subscription_id, "nonstop", traffic_bikes)
+                    total_dist = distr_bike(start_time, end_time, quant, start_id, end_id, subscription_id, "nonstop", traffic_bikes)
+                    if (abs(total_dist-1) > 0.001) :
+                        print('error on line {}, distributed nonstop with {} <> 1 bikes'.format(linecount,total_dist))
                 else :
-                    distr_bike(start_time, start_time+(max_dur/2), quant, start_id, end_id, subscription_id, "begin", traffic_bikes)
-                    distr_bike(end_time-(max_dur/2), end_time, quant, start_id, end_id, subscription_id, "end", traffic_bikes)
+                    total_dist = distr_bike(start_time, start_time+(max_dur/2), quant, start_id, end_id, subscription_id, "begin", traffic_bikes)
+                    if (abs(total_dist-1) > 0.001) :
+                        print('error on line {}, distributed begin long trip with {} <> 1 bikes'.format(linecount,total_dist))
+                    total_dist = distr_bike(end_time-(max_dur/2), end_time, quant, start_id, end_id, subscription_id, "end", traffic_bikes)
+                    if (abs(total_dist-1) > 0.001) :
+                        print('error on line {}, distributed end long trip with {} <> 1 bikes'.format(linecount,total_dist))
                     record_station(math.floor((start_time+2700)/quant)*quant, -1, subscription_id, 1, station_bikes)
                     record_station(math.floor((end_time-2700)/quant)*quant, -1, subscription_id, -1, station_bikes)
 
-                linecount += 1
                 #if linecount > 1000 :
                 #    break
 
