@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>863a5462-3a56-44fc-91e5-5a2ac0d08b12</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ABPairDistance.py</StartupFile>
+    <StartupFile>MatchStationsToCentroids.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="MatchStationsToCentroids.py" />
+    <Compile Include="ABCrossPairDistance.py" />
     <Compile Include="ABPairDistance.py">
       <SubType>Code</SubType>
     </Compile>
