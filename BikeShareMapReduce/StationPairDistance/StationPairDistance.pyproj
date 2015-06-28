@@ -29,6 +29,14 @@
     </Compile>
     <Compile Include="StationPairDistance.py" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Bikeshare\" />
+    <Folder Include="Bikeshare\Bikeshare\" />
+    <Folder Include="Queries\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Bikeshare\Bikeshare\Package.dtsx" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
