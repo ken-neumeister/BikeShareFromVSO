@@ -1,0 +1,194 @@
+﻿@model Reporting.Models.L2ABwHrWDReport
+
+@{
+    ViewBag.Title = "Bike traffic between Layer2 Pairs by day and hour";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+
+@* TBD:
+    ViewModel consists of 2 models
+       L3Results of single result for query parameters
+       L2Results of drill-down results
+    Insert LINQ here to divide L2Results into 2 sub-models
+       Summary over hour of day; order by A, B, DayOfWeek; populate table
+       Hourly details for each A, B, DayOfWeek, computed iteratively, to populate column chart
+*@
+
+<h2>@ViewBag.Title</h2>
+@{  float totalbikes = (from m
+                        in Model.results
+                        select m.Bikes).Sum();
+ }
+
+@if (Model.queryparameters.Level3A == Model.queryparameters.Level3B)
+{
+    <h3>@totalbikes Bike Trips Within Layer3 Centroid '@Model.queryparameters.Level3A.ShortName()'</h3>
+}
+else
+{
+    <h3>
+        @totalbikes Bike Trips @Model.queryparameters.Direction.ShortName() between Level 3 Centriods <br />
+        [A]: @Model.queryparameters.Level3A.ShortName() <br />
+        [B]: @Model.queryparameters.Level3B.ShortName()
+    </h3>
+}
+
+<div>
+@*    <h4>L2ABwHrWDReport</h4>*@
+    <hr />
+    <dl class="dl-horizontal"></dl>
+    @{
+        // Use Link in View to customize the aggregation and sorting
+        var summary = from m
+                      in Model.results
+                      group m by new { m.Level2A, m.Level2B, m.Weekday, m.DayOfWeek } into DaySummary
+                      orderby DaySummary.Key.Level2A, DaySummary.Key.Level2B, DaySummary.Key.DayOfWeek
+                      select new
+                      {
+                          Level2A = DaySummary.Key.Level2A,
+                          Level2B = DaySummary.Key.Level2B,
+                          Weekday = DaySummary.Key.Weekday,
+                          DayOfWeek = DaySummary.Key.DayOfWeek,
+                          ActiveHours = DaySummary.Count(),
+                          TotalBikes = DaySummary.Sum(m => m.Bikes)
+                      };
+    }
+    <table id="fordatatable" class="table">
+        <thead>
+            <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>Day</th>
+                <th>Hours</th>
+                <th>Bikes</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var m in summary)
+            {
+                var bikehours = from h
+                                in Model.results
+                                where ((h.DayOfWeek == m.DayOfWeek) &&
+                                       (h.Level2A == m.Level2A) &&
+                                       (h.Level2B == m.Level2B))
+                                orderby h.HourOfDay
+                                select new
+                                {
+                                    HourOfDay = h.HourOfDay,
+                                    Bikes = h.Bikes
+                                };
+                var javaScriptSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                //string hourjson = javaScriptSerializer.Serialize(bikehours);
+                string hourbikes = "";
+                string[] hourbikes_arry = new string[24];
+                int nexthour = 0;
+                int hour = 0;
+                float bikes = 0;
+                // 1) populate array and then join at end, eliminating the if/else block
+                // 2) left-join from list of all hours in linq and avoid problem all together
+                // needed to work-around google-charts showing solitary hours as wide columns.
+                foreach (var bh in bikehours)
+                {
+                    hour = bh.HourOfDay;
+                    bikes = bh.Bikes;
+                    if (hour > nexthour)
+                    {
+                        for (int i = nexthour; i < hour; i++)
+                        {
+                            hourbikes_arry[i] = "[" + i.ToString() + ",0]";
+                        }
+                    }
+                    hourbikes_arry[hour] = "[" + String.Join(",", hour.ToString(), bikes.ToString()) + "]";
+                    nexthour = hour + 1;
+                }
+                if (nexthour < 24)
+                {
+                    for (int i = nexthour; i < 24; i++)
+                    {
+                        hourbikes_arry[i] = "[" + i.ToString() + ",0]";
+                    }
+                }
+                hourbikes = "[" + String.Join(",",hourbikes_arry) + "]";
+                <tr>
+                    <td>@m.Level2A</td>
+                    <td>@m.Level2B</td>
+                    <td>@m.Weekday</td>
+                    <td>@m.ActiveHours<div class="hrColumns" hourbikes="@hourbikes" style="width:240px;height:80px;"></div></td>
+                    <td>@m.TotalBikes</td>
+                </tr>
+            }
+        </tbody>
+
+
+    </table>
+</div>
+<p>
+    @Html.ActionLink("Back to List", "../Reporting/ReportTable")
+</p>
+@section scripts
+{
+    @*    Jquery DataTables http://datatables.net/
+        very nice table, but doesn't allow rowspan/colspan formatting
+    *@
+    <script type="text/javascript"
+            charset="utf8"
+            src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js">
+    </script>
+    <script type="text/javascript"
+            src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version' : 1,
+              'packages':['corechart']
+             }]
+            }"></script>
+    <script type="text/javascript">
+        // documentation at https://google-developers.appspot.com/chart/
+        $().ready(function () {
+            google.setOnLoadCallback(drawCharts);
+            var table = $('#fordatatable').DataTable();
+            table.on('draw', function () {
+                var chart = $('div.hrColumns');
+                $.each(chart, drawHrColumns);
+            })
+        });
+        function drawCharts() {
+            var chart = $('div.hrColumns');
+            $.each(chart, drawHrColumns);
+        }
+        function drawHrColumns() {
+            var $this = $(this);
+
+            var chartArea = $this[0];
+            var hourbikes = JSON.parse($this.attr("hourbikes"));
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'Hour');
+            data.addColumn('number', 'Bikes');
+            data.addRows(hourbikes);
+
+            var defaultOptions = {
+                width: '100%',
+                height: '100%',
+                legend: { position: 'none' },
+                hAxis: {
+                    maxValue: 23,
+                    minValue: 0,
+                    ticks: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],
+                    title: 'Hour'
+                },
+                vAxis: {
+                    minValue: 0
+                 // title: 'Bikes'
+
+                }
+            };
+            chart = new google.visualization.ColumnChart(chartArea);
+
+            chart.draw(data, defaultOptions);
+        }
+
+
+    </script>
+}

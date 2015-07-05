@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = "ReportTable";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+
+<h2>Report Table</h2>
+
+<table id="fordatatable" class="table">
+    <thead>
+        <tr>
+            <th colspan="2" style="text-align:center">Locality</th>
+            <th colspan="3" style="text-align:center">Bikes</th>
+        </tr>
+        <tr>
+            <th>A</th>
+            <th>B</th>
+            <th style="text-align:right">A<span class="glyphicon glyphicon-arrow-right"></span>B</th>
+            <th style="text-align:right">B<span class="glyphicon glyphicon-arrow-right"></span>A</th>
+            <th>chart</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 1; i < Model.Count; i++)
+        {
+            <tr>
+                <td>@Model[i][0]</td>
+                <td>@Model[i][1]</td>
+                @* TBD convert to a form instead using antiforgery token, avoid the "&" problem
+                    tried multiple times and failed to get form to route to method despite identical url path
+                    instead revise regular get links to use centroidid instead of names, short url, easier to validate
+                *@
+
+                <td style="text-align:right"><a href="@Url.Action("/L2ABwHrWD/"+@Model[i][0].Replace("&",".0a2n0d.")+"/"+@Model[i][1].Replace("&",".0a2n0d.")+"/A-B")">@Model[i][2]</a></td>
+                <td style="text-align:right"><a href="@Url.Action("/L2ABwHrWD/"+@Model[i][0].Replace("&",".0a2n0d.")+"/"+@Model[i][1].Replace("&",".0a2n0d.")+"/B-A")">@Model[i][3]</a></td>
+                @* unsafe "&"
+                        <td style="text-align:right"><a href="@Url.Action("/L2ABwHrWD/"+Model[i][0]+"/"+Model[i][1]+"/A-B")">@Model[i][2]</a></td>
+                    <td style="text-align:right"><a href="@Url.Action("/L2ABwHrWD/"+Model[i][0]+"/"+Model[i][1]+"/B-A")">@Model[i][3]</a></td>*@
+
+                @*<td style="text-align:right">
+                        @if (!(@Model[i][2] is System.DBNull))
+                        {
+                            <form action="L2ABwHrWD" method="post">
+
+                                <input type="hidden" name="L3A" value="@Uri.EscapeDataString(Model[i][0])" />
+                                <input type="hidden" name="L3B" value="@Uri.EscapeDataString(Model[i][1])" />
+                                <input type="hidden" name="Dir" value="@Uri.EscapeDataString("A-B")" />
+                                <input type="submit" value="@Model[i][2]" class="btn btn-default" />
+                            </form>
+                        }
+                    </td>
+                    <td style="text-align:right">
+                        @if (!(@Model[i][3] is System.DBNull))
+                        {
+                            <form action="L2ABwHrWD" method="post">
+                                <input type="hidden" name="L3A" value="@Model[i][0]" />
+                                <input type="hidden" name="L3B" value="@Model[i][1]" />
+                                <input type="hidden" name="Dir" value="B-A" />
+                                <input type="submit" value="@Model[i][3]" class="btn btn-default" />
+                            </form>
+
+                        }
+                    </td>*@
+                <td><div class="abPieChart" ab="@Model[i][2]" ba="@Model[i][3]" style="width:120px;height:120px;"></div></td>
+                @*                <td><div class="sparklines" values="@Model[i][2], @Model[i][3]"></div></td>*@
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts
+{
+    @*    Jquery DataTables http://datatables.net/
+        very nice table, but doesn't allow rowspan/colspan formatting
+    *@
+    <script type="text/javascript"
+            charset="utf8"
+            src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js">
+    </script>
+    @*  attempt to integrate with google chart document ready
+            <script type="text/javascript">
+            $(document).ready(function () {
+                var table = $('#fordatatable').DataTable();
+                table.on('draw', function () {
+                    DrawCharts();
+                })
+            });
+        </script>*@
+
+    @*    sparkline tool http://omnipotent.net/jquery.sparkline/#s-about
+        1. tooltip class conflict hard to resolve, box cuts off info
+        2. attempt customize format {{percent}} not rounded, requires callback formatter, probably
+        3. no way to include labels, except perhaps by a callback function, didn't bother with it
+    *@
+    <script type="text/javascript" src="~/Scripts/jquery.sparkline.min.js">
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $('.sparklines').sparkline('html', {
+                type: 'pie',
+                height: '20px',
+                //tooltimeValueLookups: {
+                //    names: {
+                //        0: 'A-B',
+                //        1: 'B-A'
+                //    }
+                //},
+                //tooltipFormat: '<span style="z-index:\"1000\";height=\"20px\";width=\"60px\";">{{value}}<br>{{percent}}%</span>',
+                //tooltipFormat: $.spformat('{{value}}', 'alert alert-info')
+                tooltipClassname:
+                ''
+            });
+        });
+    </script>
+
+    @*    Google charts https://google-developers.appspot.com/chart/
+        1) javascript callback for mouseclick to go to new page, need to learn
+        2) full-feature chart needs to be large to work well, not sparkline-sized
+    *@
+    <script type="text/javascript"
+            src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version' : 1,
+              'packages':['corechart']
+             }]
+            }"></script>
+    @*<script type="text/javascript" src="https://www.google.com/jsapi"></script>*@
+    <script type="text/javascript">
+        // documentation at https://google-developers.appspot.com/chart/
+        $().ready(function () {
+            google.setOnLoadCallback(drawCharts);
+            var table = $('#fordatatable').DataTable();
+            table.on('draw', function () {
+                var chart = $('div.abPieChart');
+                $.each(chart, drawABPie);
+            })
+            //drawCharts();
+        });
+        function drawCharts() {
+            var chart = $('div.abPieChart');
+            $.each(chart, drawABPie);
+        }
+        function drawABPie() {
+            var $this = $(this);
+
+            var ab = parseFloat($this.attr("ab")); //.context.attributes.getNamedItem("ab").value);
+            var ba = parseFloat($this.attr("ba")); //.context.attributes.getNamedItem("ba").value);
+            var chartArea = $this[0]
+            //var data = new google.visualization.DataTable({
+            //    cols: [{ id: 'diretion', label: 'Direction', type: 'string' },
+            //           { id: 'bikes', label: 'Bikes', type: 'number' }],
+            //    rows: [{ c: [{ v: 'A-B' }, { v: ab }] },
+            //           { c: [{ v: 'B-A' }, { v: ba }] }]
+            //}, 0.6); // version 0.6
+            var data = google.visualization.arrayToDataTable([
+                ['direction', 'bikes'],
+                ['A-B', ab],
+                ['B-A', ba]
+            ])
+            //removed: chartArea: { left: '100' }
+            //  removed: title: 'Traffic Balance'
+            var defaultOptions = {
+                width: '100%',
+                height: '100%',
+                legend: { position: 'none' }
+            };
+            chart = new google.visualization.PieChart(chartArea);
+
+            //function selectHandler() {
+            //    var selectedItem = chart.getSelection()[0];
+            //    if (selectedItem) {
+            //        var direction = data.getValue(SelectedItem.row, 0);
+            //        alert('/PairDetail/' + direction);
+            //    }
+            //    else {
+            //        alert('getSelection() is empty?')
+            //    }
+            //}
+            //bug: above handler called but chart.getSelection is empty array
+            //google.visualization.events.addListener(chart, 'select', selectHandler);
+            chart.draw(data, defaultOptions);
+        }
+    </script>
+}
