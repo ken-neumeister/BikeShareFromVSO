@@ -82,11 +82,11 @@ namespace Reporting.Models
         //public string Level3BName() { return friendly(Level3B); }
         //public string DirectionName() { return friendly(Direction); }
 
-        public L3ABwHrWDParams(string l3A, string l3B, string dir)
+        public L3ABwHrWDParams(string Level3A, string Level3B, string Direction)
         {
-            Level3A = new OlapQueryParameter(l3A);
-            Level3B = new OlapQueryParameter(l3B);
-            Direction = new OlapQueryParameter(dir);
+            this.Level3A = new OlapQueryParameter(Level3A);
+            this.Level3B = new OlapQueryParameter(Level3B);
+            this.Direction = new OlapQueryParameter(Direction);
         }
 
         public L3ABwHrWDParams()  // Visual studio generated this

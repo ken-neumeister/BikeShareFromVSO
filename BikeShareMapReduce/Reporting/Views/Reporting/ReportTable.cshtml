@@ -31,8 +31,43 @@
                     instead revise regular get links to use centroidid instead of names, short url, easier to validate
                 *@
 
-                <td style="text-align:right"><a href="@Url.Action("/L2ABwHrWD/"+@Model[i][0].Replace("&",".0a2n0d.")+"/"+@Model[i][1].Replace("&",".0a2n0d.")+"/A-B")">@Model[i][2]</a></td>
-                <td style="text-align:right"><a href="@Url.Action("/L2ABwHrWD/"+@Model[i][0].Replace("&",".0a2n0d.")+"/"+@Model[i][1].Replace("&",".0a2n0d.")+"/B-A")">@Model[i][3]</a></td>
+                <td style="text-align:right">
+                    @*<a href="@Url.Action("/L2ABwHrWD/"+@Model[i][0].Replace("&",".0a2n0d.")+"/"+@Model[i][1].Replace("&",".0a2n0d.")+"/A-B")">@Model[i][2]</a>*@
+@*                    @Model[i][2]<br />*@
+                    @if (!(@Model[i][2] is System.DBNull))
+                    {
+                        using (Html.BeginForm("L2ABwHrWDPost", "L2ABwHrWD"))
+                        {
+                            @Html.AntiForgeryToken()
+                            string L3A = Model[i][0];
+                            string L3B = Model[i][1];
+                            @Html.Hidden("Level3A", L3A)
+                            @Html.Hidden("Level3B", L3B)
+                            @Html.Hidden("Direction", "A-B")
+                            @*<input type="submit" value="Details" class="btn btn-default" />*@
+                            <button type="submit">@Model[i][2]</button>
+                        }
+                    }
+                </td>
+                <td style="text-align:right">
+                    @*<a href="@Url.Action("/L2ABwHrWD/"+@Model[i][0].Replace("&",".0a2n0d.")+"/"+@Model[i][1].Replace("&",".0a2n0d.")+"/B-A")">@Model[i][3]</a>*@
+                    @*@Model[i][3]<br />*@
+                    @if (!(@Model[i][3] is System.DBNull))
+                    {
+                        using (Html.BeginForm("L2ABwHrWDPost", "L2ABwHrWD"))
+                        {
+
+                            @Html.AntiForgeryToken()
+                            string L3A = Model[i][0];
+                            string L3B = Model[i][1];
+                            @Html.Hidden("Level3A", L3A)
+                            @Html.Hidden("Level3B", L3B)
+                            @Html.Hidden("Direction", "B-A")
+                            @*<input type="submit" value="Details" class="btn btn-default" />*@
+                            <button type="submit">@Model[i][3]</button>                        }
+                    }
+
+                </td>
                 @* unsafe "&"
                         <td style="text-align:right"><a href="@Url.Action("/L2ABwHrWD/"+Model[i][0]+"/"+Model[i][1]+"/A-B")">@Model[i][2]</a></td>
                     <td style="text-align:right"><a href="@Url.Action("/L2ABwHrWD/"+Model[i][0]+"/"+Model[i][1]+"/B-A")">@Model[i][3]</a></td>*@

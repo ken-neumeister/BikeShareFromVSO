@@ -21,12 +21,27 @@ namespace Reporting.Controllers
         //        @Html.Hidden("Direction","...")
         // submission returns anonymous object with these fields, not isolated strings!
         [HttpPost]  // not sure this will work, may need special type with simple string members
-        public ViewResult L2ABwHrWDPost(L3ABwHrWDParams L3params)  
+        //public ViewResult L2ABwHrWDPost(L3ABwHrWDParams L3params)
+        public ViewResult L2ABwHrWDPost(string Level3A, string Level3B, string Direction)
         {
-            L2ABwHrWDReport l2abwhrwdreport = new L2ABwHrWDReport(L3params);
+            // need to decorate with unique name parts, unnecessary if unique name is in query
+            if ((Level3A.Length < 32) || (Level3A.Substring(0, 32) != "[CentroidA].[Level3 Locality].&["))
+            {
+                Level3A = "[CentroidA].[Level3 Locality].&[" + Level3A + "]";
+            }
+            if ((Level3B.Length < 32) || (Level3B.Substring(0, 32) != "[CentroidB].[Level3 Locality].&["))
+            {
+                Level3B = "[CentroidB].[Level3 Locality].&[" + Level3B + "]";
+            }
+            if ((Direction.Length < 26) || (Direction.Substring(0, 26) != "[Direction].[Direction].&["))
+            {
+                Direction = "[Direction].[Direction].&[" + Direction + "]";
+            }
+
+            L2ABwHrWDReport l2abwhrwdreport = new L2ABwHrWDReport(Level3A, Level3B, Direction);
             l2abwhrwdreport.GetData();
 
-            return View(l2abwhrwdreport);
+            return View("L2ABwHrWD", l2abwhrwdreport);
         }
 
         // Get: L2ABwHrWD
