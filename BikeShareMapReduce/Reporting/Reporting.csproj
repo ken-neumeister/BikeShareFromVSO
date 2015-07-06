@@ -169,8 +169,10 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\L2ABwHrWDController.cs" />
     <Compile Include="Controllers\TripsByCatsTimeDistController.cs" />
+    <Compile Include="Controllers\TripsByDistDurCatListController.cs" />
     <Compile Include="Models\OlapQueryParameter.cs" />
     <Compile Include="Models\TripsByCatsTimeDist.cs" />
+    <Compile Include="Models\TripsByDurDistCatHierarchy.cs" />
     <Compile Include="Views\ManageController.cs" />
     <Compile Include="Controllers\ReportingController.cs" />
     <Compile Include="Data\Reporting.cs" />
@@ -249,6 +251,7 @@
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Views\L2ABwHrWD\L2ABwHrWD.cshtml" />
     <Content Include="Views\TripsByCatsTimeDist\TripsByCatsTimeDist.cshtml" />
+    <Content Include="Views\TripsByDistDurCatList\TripsByDistDurCatList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

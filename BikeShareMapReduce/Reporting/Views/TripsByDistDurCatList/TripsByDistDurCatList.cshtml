@@ -1,0 +1,132 @@
+﻿@model Reporting.TripsByDurDistCatHierarchy.TripsByDistDurCatList
+@{
+    ViewBag.Title = "TripsByDistDurCatList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+
+
+<h2>TripsByDistDurCatList</h2>
+
+<table id="fordatatable" class="table">
+    <thead>
+        <tr>
+            <td>Trip</td>
+            <td>Usage</td>
+            <td>Miles</td>
+            <td>Bikes</td>
+            @{  string[] weekdays = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+                int wdindex = 0;
+                string displaytext = "";
+            }
+            @foreach (string wd in weekdays)
+            {
+                <td>@wd</td>
+            }
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.DistanceCategory.GetValue()</td>
+                <td>@m.DurationCategory.GetValue()</td>
+                @{displaytext = m.DistanceQtrMi.GetValue().ToString("#,#.00");
+                }
+                <td>@displaytext</td>
+                @{displaytext = m.Bikes.GetValue().ToString("#,#.##");
+                }
+
+                <td style="text-align:right">@displaytext</td>
+                @{wdindex = 0;
+                }
+
+                @foreach (var weekday in m.WeekdayList)
+                {
+                    while ((weekdays[wdindex] != weekday.WeekdayName.GetValue()) && (wdindex < 6))
+                    {
+                        wdindex += 1;
+                        <td style="text-align:right">0.00</td>
+                    }
+                    displaytext = weekday.Bikes.GetValue().ToString("#,#.##");
+                   
+                    <td style="text-align:right">@displaytext</td>
+                    wdindex += 1;
+                    
+                        }
+                @while (wdindex < 7)
+                {
+                wdindex += 1;
+                <td style="text-align:right">0.</td>
+                }
+            </tr>
+                    }
+    </tbody>
+</table>
+
+@section scripts
+                    {
+    @*    Jquery DataTables http://datatables.net/
+        very nice table, but doesn't allow rowspan/colspan formatting
+    *@
+    <script type="text/javascript"
+            charset="utf8"
+            src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js">
+    </script>
+    <script type="text/javascript"
+            src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version' : 1,
+              'packages':['corechart']
+             }]
+            }"></script>
+    <script type="text/javascript">
+        // documentation at https://google-developers.appspot.com/chart/
+        $().ready(function () {
+            google.setOnLoadCallback(drawCharts);
+            var table = $('#fordatatable').DataTable();
+            table.on('draw', function () {
+                var chart = $('div.hrColumns');
+                $.each(chart, drawHrColumns);
+            })
+        });
+        function drawCharts() {
+            var chart = $('div.hrColumns');
+            $.each(chart, drawHrColumns);
+        }
+        function drawHrColumns() {
+            var $this = $(this);
+
+            var chartArea = $this[0];
+            var hourbikes = JSON.parse($this.attr("hourbikes"));
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'Hour');
+            data.addColumn('number', 'Bikes');
+            data.addRows(hourbikes);
+
+            var defaultOptions = {
+                width: '100%',
+                height: '100%',
+                legend: { position: 'none' },
+                hAxis: {
+                    maxValue: 2,
+                    minValue: 0,
+                    ticks: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22],
+                    title: 'Hour'
+                },
+                vAxis: {
+                    minValue: 0
+                    // title: 'Bikes'
+
+                }
+            };
+            chart = new google.visualization.ColumnChart(chartArea);
+
+            chart.draw(data, defaultOptions);
+        }
+
+
+    </script>
+}
