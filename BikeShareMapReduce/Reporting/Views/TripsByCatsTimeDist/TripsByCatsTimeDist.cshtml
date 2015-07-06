@@ -1,0 +1,122 @@
+﻿@model Reporting.Models.TripsByCatsTimeDist
+@{
+    ViewBag.Title = "Bike Trips By Time and Distance Categories";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+
+<h2>@ViewBag.Title</h2>
+
+@* use LINQ to create table to populate rows for categories of distance/duration/QtrMile compute total bikes *@
+
+@{  // group by objects will treat each object distinct even if they have the same contents
+    // to obtain model models 
+    var rowsummary = from m in Model
+                     group m by new
+                     {
+                         DistanceCategory = m.DistanceCategory.MemberCaption,
+                         DurationCategory = m.DurationCategory.MemberCaption,
+                         DistanceQtrMi = m.DistanceQtrMi.MemberCaption
+                     } into CatSummary
+                     orderby CatSummary.Key.DistanceCategory, CatSummary.Key.DurationCategory, CatSummary.Key.DistanceQtrMi
+                     select new
+                     {
+                         DistanceCategory = CatSummary.Key.DistanceCategory,
+                         DurationCategory = CatSummary.Key.DurationCategory,
+                         DistanceQtrMi = CatSummary.Key.DistanceQtrMi,
+                         TotalBikes = CatSummary.Sum(m => m.Bikes.GetValue())
+                     };
+}
+
+<table id="fordatatable" class="table">
+    <thead>
+        <tr>
+            <th>Distance</th>
+            <th>Trip</th>
+            <th>Qtr Mi</th>
+            <th>Bikes</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rs in rowsummary)
+        {
+            <tr>
+                <td>@rs.DistanceCategory</td>
+                <td>@rs.DurationCategory</td>
+                <td>@rs.DistanceQtrMi</td>
+                <td>@rs.TotalBikes</td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+@* Within each row use LINQ to populate columns for total bikes per day using join for weekdays *@
+
+@* Within each cell use LINQ to populate two sequences for hour*2: one for subscribers, one for registered (two queries) *@
+
+@section scripts
+{
+    @*    Jquery DataTables http://datatables.net/
+        very nice table, but doesn't allow rowspan/colspan formatting
+    *@
+    <script type="text/javascript"
+            charset="utf8"
+            src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js">
+    </script>
+    <script type="text/javascript"
+            src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version' : 1,
+              'packages':['corechart']
+             }]
+            }"></script>
+    <script type="text/javascript">
+        // documentation at https://google-developers.appspot.com/chart/
+        $().ready(function () {
+            google.setOnLoadCallback(drawCharts);
+            var table = $('#fordatatable').DataTable();
+            table.on('draw', function () {
+                var chart = $('div.hrColumns');
+                $.each(chart, drawHrColumns);
+            })
+        });
+        function drawCharts() {
+            var chart = $('div.hrColumns');
+            $.each(chart, drawHrColumns);
+        }
+        function drawHrColumns() {
+            var $this = $(this);
+
+            var chartArea = $this[0];
+            var hourbikes = JSON.parse($this.attr("hourbikes"));
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'Hour');
+            data.addColumn('number', 'Bikes');
+            data.addRows(hourbikes);
+
+            var defaultOptions = {
+                width: '100%',
+                height: '100%',
+                legend: { position: 'none' },
+                hAxis: {
+                    maxValue: 2,
+                    minValue: 0,
+                    ticks: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22],
+                    title: 'Hour'
+                },
+                vAxis: {
+                    minValue: 0
+                    // title: 'Bikes'
+
+                }
+            };
+            chart = new google.visualization.ColumnChart(chartArea);
+
+            chart.draw(data, defaultOptions);
+        }
+
+
+    </script>
+}

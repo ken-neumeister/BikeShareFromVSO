@@ -168,7 +168,9 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\L2ABwHrWDController.cs" />
+    <Compile Include="Controllers\TripsByCatsTimeDistController.cs" />
     <Compile Include="Models\OlapQueryParameter.cs" />
+    <Compile Include="Models\TripsByCatsTimeDist.cs" />
     <Compile Include="Views\ManageController.cs" />
     <Compile Include="Controllers\ReportingController.cs" />
     <Compile Include="Data\Reporting.cs" />
@@ -246,9 +248,11 @@
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Views\L2ABwHrWD\L2ABwHrWD.cshtml" />
+    <Content Include="Views\TripsByCatsTimeDist\TripsByCatsTimeDist.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Reporting\TripsByCatsTimeDist\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
