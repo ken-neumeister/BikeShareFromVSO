@@ -172,7 +172,7 @@
     <Compile Include="Controllers\TripsByDistDurCatListController.cs" />
     <Compile Include="Models\OlapQueryParameter.cs" />
     <Compile Include="Models\TripsByCatsTimeDist.cs" />
-    <Compile Include="Models\TripsByDurDistCatHierarchy.cs" />
+    <Compile Include="Models\TripsByDurDistCatListBuilder.cs" />
     <Compile Include="Views\ManageController.cs" />
     <Compile Include="Controllers\ReportingController.cs" />
     <Compile Include="Data\Reporting.cs" />

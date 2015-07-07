@@ -1,4 +1,4 @@
-﻿@model Reporting.TripsByDurDistCatHierarchy.TripsByDistDurCatList
+﻿@model Reporting.TripsByDurDistCatListBuilder.TripsByDistDurCatList
 @{
     ViewBag.Title = "TripsByDistDurCatList";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -47,18 +47,57 @@
                     while ((weekdays[wdindex] != weekday.WeekdayName.GetValue()) && (wdindex < 6))
                     {
                         wdindex += 1;
-                        <td style="text-align:right">0.00</td>
+                        <td style="text-align:right">0</td>
                     }
-                    displaytext = weekday.Bikes.GetValue().ToString("#,#.##");
-                   
-                    <td style="text-align:right">@displaytext</td>
-                    wdindex += 1;
-                    
+                    int[] hours = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 };
+                    float[] casbikes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                    float[] regbikes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                    string[] subs_hours = new string[2];
+                    int isubs = 0;
+                    bool hasbikes = false;
+                    foreach (var s in weekday.SubscriberList)
+                    {
+                        hasbikes = true;
+                        foreach (var h in s.TripHours)
+                        {
+                            if (s.Subscriber.MemberCaption == "Registered")
+                            {
+                                regbikes[h.Hour2OfDay.GetValue() / 2] = h.Bikes.GetValue();
+                            }
+                            else
+                            {
+                                casbikes[h.Hour2OfDay.GetValue() / 2] = h.Bikes.GetValue();
+                            }
                         }
+                        isubs += 1;
+                        if (isubs > 1) { break; }
+                    }
+                    string[] hourbikes1 = new string[12];
+                    for (int i = 0; i < 12; i++)
+                    {
+                        hourbikes1[i] = "[" + String.Join(",", hours[i], casbikes[i], regbikes[i]) + "]";
+                    }
+                    string hourbikes = "[" + String.Join(",", hourbikes1) + "]";
+                    displaytext = weekday.Bikes.GetValue().ToString("#,#.##");
+
+                    <td style="text-align:right">
+                        @displaytext
+                        @if (hasbikes == true)
+                        {
+                            <div class="hrColumns" hourbikes="@hourbikes" style="width:100px;height:60px;"></div>
+                        }
+                        else
+                        {
+                            <div style="width:100px;height:60px;"></div>
+                        }
+                    </td>
+                    wdindex += 1;
+
+                }
                 @while (wdindex < 7)
                 {
-                wdindex += 1;
-                <td style="text-align:right">0.</td>
+                    wdindex += 1;
+                    <td style="text-align:right">0</td>
                 }
             </tr>
                     }
@@ -100,11 +139,12 @@
             var $this = $(this);
 
             var chartArea = $this[0];
-            var hourbikes = JSON.parse($this.attr("hourbikes"));
+            var bikes = JSON.parse($this.attr("hourbikes"));
             var data = new google.visualization.DataTable();
             data.addColumn('number', 'Hour');
-            data.addColumn('number', 'Bikes');
-            data.addRows(hourbikes);
+            data.addColumn('number', 'Casual');
+            data.addColumn('number', 'Registered');
+            data.addRows(bikes);
 
             var defaultOptions = {
                 width: '100%',
