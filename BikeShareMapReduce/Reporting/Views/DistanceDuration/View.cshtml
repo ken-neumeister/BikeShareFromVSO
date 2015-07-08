@@ -31,10 +31,10 @@
                         string[] subs_hours = new string[2];
                         int isubs = 0;
                         bool hasbikes = false;
-                        foreach (Reporting.Models.TripCategories.RowSubscriber s in m.SubscriberList)
+                        foreach (Reporting.Models.TripCategories.RowSubscriber s in m.ChildList)
                         {
                             hasbikes = true;
-                            foreach (Reporting.Models.TripCategories.RowHour2 h in s.Hour2List)
+                            foreach (Reporting.Models.TripCategories.RowHour2 h in s.ChildList)
                             {
                                 if (s.Subscriber.MemberCaption == "Registered")
                                 {

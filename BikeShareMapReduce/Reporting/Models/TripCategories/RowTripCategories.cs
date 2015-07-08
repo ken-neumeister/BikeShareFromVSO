@@ -16,11 +16,11 @@ namespace Reporting.Models.TripCategories
         /// <param name="colnbr">
         /// dictionary mapping column names to numbers
         /// </param>
-        public RowTripCategories(DataRow dr, Dictionary<string, int> colnbr) : base(dr,colnbr)
+        public RowTripCategories(BikeTable tabletype, DataRow dr, Dictionary<string, int> colnbr) : base(tabletype, dr,colnbr)
         {
             DistanceCategory = new DimPairDistanceCategory(dr, colnbr);
             DurationCategory = new DimTripCategory(dr, colnbr);
-            SubscriberList = new TableSubscriber();
+            //SubscriberList = new TableSubscriber();
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Reporting.Models.TripCategories
         /// </summary>
         public DimTripCategory DurationCategory;
 
-        public TableSubscriber SubscriberList;
+        //public TableSubscriber SubscriberList;
 
         public bool Equals(RowTripCategories other)
         {
@@ -42,37 +42,37 @@ namespace Reporting.Models.TripCategories
         }
     }
 
-    public class TableTripCategories: List<RowTripCategories> //: BikeTable
+    public class TableTripCategories: BikeTable //: List<RowTripCategories>
     {
-        internal void UpdateForDR(DataRow dr, Dictionary<string, int> colnbr)
+        //internal void UpdateForDR(DataRow dr, Dictionary<string, int> colnbr)
+        //{
+        //    RowTripCategories candidate = new RowTripCategories(dr, colnbr);
+        //    RowTripCategories selected;
+        //    if (Exists(x => x.Equals(candidate)))
+        //    {
+        //        selected = Find(x => x.Equals(candidate));
+        //        selected.Bikes.IncValue(candidate.Bikes.GetValue());
+        //    }
+        //    else
+        //    {
+        //        Add(candidate);
+        //        selected = candidate;
+        //    }
+        //    selected.SubscriberList.UpdateForDR(dr, colnbr);
+        //}
+
+
+        public override bool CompareRows(AbstractBikeRow selected, AbstractBikeRow candidate)
         {
-            RowTripCategories candidate = new RowTripCategories(dr, colnbr);
-            RowTripCategories selected;
-            if (Exists(x => x.Equals(candidate)))
-            {
-                selected = Find(x => x.Equals(candidate));
-                selected.Bikes.IncValue(candidate.Bikes.GetValue());
-            }
-            else
-            {
-                Add(candidate);
-                selected = candidate;
-            }
-            selected.SubscriberList.UpdateForDR(dr, colnbr);
+            RowTripCategories thisSelected = (RowTripCategories)selected;
+            RowTripCategories thisCandidate = (RowTripCategories)candidate;
+            bool result = thisSelected.Equals(thisCandidate);
+            return result;
         }
 
-
-        //public override bool CompareRows(AbstractBikeRow selected, AbstractBikeRow candidate)
-        //{
-        //    RowTripCategories thisSelected = (RowTripCategories)selected;
-        //    RowTripCategories thisCandidate = (RowTripCategories)candidate;
-        //    bool result = thisSelected.Equals(thisCandidate);
-        //    return result;
-        //}
-
-        //public override AbstractBikeRow GenerateNewRow(DataRow dr, Dictionary<string, int> colnbr)
-        //{
-        //    return new RowTripCategories(dr, colnbr);
-        //}
+        public override AbstractBikeRow GenerateNewRow(BikeTable tabletype, DataRow dr, Dictionary<string, int> colnbr)
+        {
+            return new RowTripCategories(tabletype, dr, colnbr);
+        }
     }
 }

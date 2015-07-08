@@ -17,9 +17,13 @@ namespace Reporting.BikesBase
 
         public BikeTable ChildList { get; set; }
 
-        public AbstractBikeRow(DataRow dr, Dictionary<string, int> colnbr)
+        public AbstractBikeRow(BikeTable tabletype, DataRow dr, Dictionary<string, int> colnbr)
         {
             Bikes = new MeasureBikes(dr, colnbr);
+            if (tabletype != null)
+            {
+                ChildList = (BikeTable)Activator.CreateInstance(tabletype.GetType());
+            }
         }
 
         public virtual bool Equals(AbstractBikeRow other)

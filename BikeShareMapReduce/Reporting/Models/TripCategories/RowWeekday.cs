@@ -24,7 +24,7 @@ namespace Reporting.Models.TripCategories
         /// <param name="colnbr">
         /// Dictionary of column numbers for column headings
         /// </param>
-        public RowWeekday(DataRow dr, Dictionary<string, int> colnbr) : base(dr, colnbr)
+        public RowWeekday(BikeTable tabletype, DataRow dr, Dictionary<string, int> colnbr) : base(tabletype, dr, colnbr)
         {
             WeekdayName = new DimTimeWeekdayName(dr, colnbr);
         }
@@ -45,9 +45,9 @@ namespace Reporting.Models.TripCategories
             return result;
         }
 
-        public override AbstractBikeRow GenerateNewRow(DataRow dr, Dictionary<string, int> colnbr)
+        public override AbstractBikeRow GenerateNewRow(BikeTable tabletype, DataRow dr, Dictionary<string, int> colnbr)
         {
-            return new RowWeekday(dr, colnbr);
+            return new RowWeekday(tabletype, dr, colnbr);
         }
     }
 }

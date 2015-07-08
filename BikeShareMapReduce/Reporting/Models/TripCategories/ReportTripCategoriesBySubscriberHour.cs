@@ -23,9 +23,11 @@ FROM [Bikeshare]";
             return cmd;
         }
 
-        public TableTripCategories GetData()
+        public BikeTable GetData(List<BikeTable> hierarchy)
         {
-            TableTripCategories model = new TableTripCategories();
+
+            BikeTable model = new BikeTable();
+            model = (BikeTable)Activator.CreateInstance(hierarchy[0].GetType()); //new TableTripCategories();
             DataSet ds = new DataSet();
             using (AdomdConnection conn = new AdomdConnection("Data Source=miranda;Initial Catalog=bikesMD2"))
             {
@@ -48,7 +50,7 @@ FROM [Bikeshare]";
             }
             foreach (DataRow dr in dt.Rows)
             {
-                model.UpdateForDR(dr, colnbr);
+                model.UpdateForDR(hierarchy, 1, dr, colnbr);
             }
 
             return (model);

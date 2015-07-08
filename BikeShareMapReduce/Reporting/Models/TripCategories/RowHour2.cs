@@ -26,7 +26,7 @@ namespace Reporting.Models.TripCategories
         /// <param name="colnbr">
         /// Dictionary of column headings in dataset
         /// </param>
-        public RowHour2(DataRow dr, Dictionary<string, int> colnbr) : base(dr, colnbr)
+        public RowHour2(BikeTable tabletype, DataRow dr, Dictionary<string, int> colnbr) : base(tabletype, dr, colnbr)
         {
             Hour2OfDay = new DimTimeHour2ofDay(dr, colnbr);
         }
@@ -37,35 +37,35 @@ namespace Reporting.Models.TripCategories
         }
     }
 
-    public class TableHour2: List<RowHour2> //: BikeTable
+    public class TableHour2: BikeTable //: List<RowHour2>
     {
-        internal void UpdateForDR(DataRow dr, Dictionary<string, int> colnbr)
-        {
-            RowHour2 candidate = new RowHour2(dr, colnbr);
-            RowHour2 selected;
-            if (Exists(x => x.Equals(candidate)))
-            {
-                selected = Find(x => x.Equals(candidate));
-                selected.Bikes.IncValue(candidate.Bikes.GetValue());
-            }
-            else
-            {
-                Add(candidate);
-                selected = candidate;
-            }
-        }
-        
-        //public override bool CompareRows(AbstractBikeRow selected, AbstractBikeRow candidate)
+        //internal void UpdateForDR(DataRow dr, Dictionary<string, int> colnbr)
         //{
-        //    RowHour2 thisSelected = (RowHour2)selected;
-        //    RowHour2 thisCandidate = (RowHour2)candidate;
-        //    bool result = thisSelected.Equals(thisCandidate);
-        //    return result;
+        //    RowHour2 candidate = new RowHour2(dr, colnbr);
+        //    RowHour2 selected;
+        //    if (Exists(x => x.Equals(candidate)))
+        //    {
+        //        selected = Find(x => x.Equals(candidate));
+        //        selected.Bikes.IncValue(candidate.Bikes.GetValue());
+        //    }
+        //    else
+        //    {
+        //        Add(candidate);
+        //        selected = candidate;
+        //    }
         //}
 
-        //public override AbstractBikeRow GenerateNewRow(DataRow dr, Dictionary<string, int> colnbr)
-        //{
-        //    return new RowHour2(dr, colnbr);
-        //}
+        public override bool CompareRows(AbstractBikeRow selected, AbstractBikeRow candidate)
+        {
+            RowHour2 thisSelected = (RowHour2)selected;
+            RowHour2 thisCandidate = (RowHour2)candidate;
+            bool result = thisSelected.Equals(thisCandidate);
+            return result;
+        }
+
+        public override AbstractBikeRow GenerateNewRow(BikeTable tabletype, DataRow dr, Dictionary<string, int> colnbr)
+        {
+            return new RowHour2(tabletype, dr, colnbr);
+        }
     }
 }

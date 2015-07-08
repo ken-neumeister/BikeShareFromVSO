@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Reporting.BikesBase
 {
-    public abstract class BikeTable : List<AbstractBikeRow>
+    public class BikeTable : List<AbstractBikeRow>
     {
         /// <summary>
         /// Each specific table will override this method to return appropriate row type
@@ -12,9 +12,9 @@ namespace Reporting.BikesBase
         /// <param name="dr"></param>
         /// <param name="colnbr"></param>
         /// <returns></returns>
-        public virtual AbstractBikeRow GenerateNewRow(DataRow dr, Dictionary<string, int> colnbr)
+        public virtual AbstractBikeRow GenerateNewRow(BikeTable typename, DataRow dr, Dictionary<string, int> colnbr)
         {
-           throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public virtual bool CompareRows(AbstractBikeRow selected, AbstractBikeRow candidate)
@@ -22,17 +22,25 @@ namespace Reporting.BikesBase
             throw new NotImplementedException();
         }
 
-        internal void UpdateForDR(List<BikeTable> hierarchy, DataRow dr, Dictionary<string, int> colnbr)
+        internal void UpdateForDR(List<BikeTable> hierarchy, int hierarchylevel, DataRow dr, Dictionary<string, int> colnbr)
         {
-            BikeTable thislist = hierarchy[0];
-            AbstractBikeRow candidate = thislist.GenerateNewRow(dr, colnbr);
+            BikeTable childlisttype;
+            if (hierarchy.Count > hierarchylevel)
+            {
+                childlisttype = hierarchy[hierarchylevel];
+            }
+            else
+            {
+                childlisttype = null;
+            }
+            AbstractBikeRow candidate = GenerateNewRow(childlisttype, dr, colnbr);
             AbstractBikeRow selected;
-            if (Contains(candidate))
+            if (Exists(x => CompareRows(x, candidate)))
             {
                 // how does this work?
                 // AbstractBikeRow.Equals will throw exception
                 //  -- this is what happens, call to AbstractBikeRow instead of derived class
-                selected = Find(x => x.Equals(candidate));
+                selected = Find(x => CompareRows(x, candidate));
                 selected.Bikes.IncValue(candidate.Bikes.GetValue());
             }
             else
@@ -40,12 +48,14 @@ namespace Reporting.BikesBase
                 Add(candidate);
                 selected = candidate;
             }
-            if (hierarchy.Count > 0)
+            hierarchylevel += 1;
+            //if (hierarchy.Count > hierarchylevel)
+            //{
+            if (selected.ChildList != null)
             {
-                selected.ChildList = hierarchy[0];
-                hierarchy.RemoveAt(0);
-                selected.ChildList.UpdateForDR(hierarchy, dr, colnbr);
+                selected.ChildList.UpdateForDR(hierarchy, hierarchylevel, dr, colnbr);
             }
+            //}
         }
     }
 }
