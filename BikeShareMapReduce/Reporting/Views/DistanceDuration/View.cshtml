@@ -1,0 +1,141 @@
+﻿@model Reporting.Models.TripCategories.TableTripCategories
+@{
+    ViewBag.Title = "Subscriber Bihourly Bike Trips By Trip Categories";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+
+
+<h2>@ViewBag.Title</h2>
+
+<table id="fordatatable" class="table">
+    <thead>
+        <tr>
+            <th>Distance</th>
+            <th>Duration</th>
+            <th>Bikes</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Reporting.Models.TripCategories.RowTripCategories m in Model)
+        {
+            <tr>
+                <td>@m.DistanceCategory.GetValue()</td>
+                <td>@m.DurationCategory.GetValue()</td>
+                <td>
+                    @m.Bikes.GetValue().ToString("#,#.##")
+                    @{
+                        int[] hours = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 };
+                        float[] casbikes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                        float[] regbikes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                        string[] subs_hours = new string[2];
+                        int isubs = 0;
+                        bool hasbikes = false;
+                        foreach (Reporting.Models.TripCategories.RowSubscriber s in m.SubscriberList)
+                        {
+                            hasbikes = true;
+                            foreach (Reporting.Models.TripCategories.RowHour2 h in s.Hour2List)
+                            {
+                                if (s.Subscriber.MemberCaption == "Registered")
+                                {
+                                    regbikes[h.Hour2OfDay.GetValue() / 2] = h.Bikes.GetValue();
+                                }
+                                else
+                                {
+                                    casbikes[h.Hour2OfDay.GetValue() / 2] = h.Bikes.GetValue();
+                                }
+                            }
+                            isubs += 1;
+                            if (isubs > 1)
+                            {
+                                break;
+                            }
+                        }
+                        string[] hourbikes1 = new string[12];
+                        for (int i = 0; i < 12; i++)
+                        {
+                            hourbikes1[i] = "[" + String.Join(",", hours[i], casbikes[i], regbikes[i]) + "]";
+                        }
+                        string hourbikes = "[" + String.Join(",", hourbikes1) + "]";
+                    }
+                    @if (hasbikes == true)
+                    {
+                        <div class="hrColumns" hourbikes="@hourbikes" style="width:200px;height:120px;"></div>
+                    }
+                    else
+                    {
+                        <div style="width:100px;height:60px;"></div>
+                    }
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@section scripts
+                    {
+    @*    Jquery DataTables http://datatables.net/
+        very nice table, but doesn't allow rowspan/colspan formatting
+    *@
+    <script type="text/javascript"
+            charset="utf8"
+            src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js">
+    </script>
+    <script type="text/javascript"
+            src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version' : 1,
+              'packages':['corechart']
+             }]
+            }"></script>
+    <script type="text/javascript">
+        // documentation at https://google-developers.appspot.com/chart/
+        $().ready(function () {
+            google.setOnLoadCallback(drawCharts);
+            var table = $('#fordatatable').DataTable();
+            table.on('draw', function () {
+                var chart = $('div.hrColumns');
+                $.each(chart, drawHrColumns);
+            })
+        });
+        function drawCharts() {
+            var chart = $('div.hrColumns');
+            $.each(chart, drawHrColumns);
+        }
+        function drawHrColumns() {
+            var $this = $(this);
+
+            var chartArea = $this[0];
+            var bikes = JSON.parse($this.attr("hourbikes"));
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'Hour');
+            data.addColumn('number', 'Casual');
+            data.addColumn('number', 'Registered');
+            data.addRows(bikes);
+
+            var defaultOptions = {
+                width: '100%',
+                height: '100%',
+                legend: { position: 'none' },
+                hAxis: {
+                    maxValue: 2,
+                    minValue: 0,
+                    ticks: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22],
+                    title: 'Hour'
+                },
+                vAxis: {
+                    minValue: 0
+                    // title: 'Bikes'
+
+                }
+            };
+            chart = new google.visualization.ColumnChart(chartArea);
+
+            chart.draw(data, defaultOptions);
+        }
+
+
+    </script>
+}

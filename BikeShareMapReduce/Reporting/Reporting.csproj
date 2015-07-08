@@ -165,12 +165,28 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="BikesBase\AbstractBikeRow.cs" />
+    <Compile Include="BikesBase\BikeTable.cs" />
+    <Compile Include="BikesBase\DimPairQtrMile.cs" />
+    <Compile Include="BikesBase\DimTimeHour2ofDay.cs" />
+    <Compile Include="BikesBase\DimTimeWeekdayName.cs" />
+    <Compile Include="BikesBase\DimTripCategory.cs" />
+    <Compile Include="BikesBase\MeasureBikes.cs" />
+    <Compile Include="BikesBase\VariableForBikesCube.cs" />
+    <Compile Include="BikesBase\DimPairDistanceCategory.cs" />
+    <Compile Include="BikesBase\DimSubscriber.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\L2ABwHrWDController.cs" />
+    <Compile Include="Controllers\TripCategories\DistanceDurationController.cs" />
     <Compile Include="Controllers\TripsByCatsTimeDistController.cs" />
     <Compile Include="Controllers\TripsByDistDurCatListController.cs" />
     <Compile Include="Models\OlapQueryParameter.cs" />
+    <Compile Include="Models\TripCategories\ReportTripCategoriesBySubscriberHour.cs" />
+    <Compile Include="Models\TripCategories\RowHour2.cs" />
+    <Compile Include="Models\TripCategories\RowSubscriber.cs" />
+    <Compile Include="Models\TripCategories\RowTripCategories.cs" />
+    <Compile Include="Models\TripCategories\RowWeekday.cs" />
     <Compile Include="Models\TripsByCatsTimeDist.cs" />
     <Compile Include="Models\TripsByDurDistCatListBuilder.cs" />
     <Compile Include="Views\ManageController.cs" />
@@ -252,6 +268,7 @@
     <Content Include="Views\L2ABwHrWD\L2ABwHrWD.cshtml" />
     <Content Include="Views\TripsByCatsTimeDist\TripsByCatsTimeDist.cshtml" />
     <Content Include="Views\TripsByDistDurCatList\TripsByDistDurCatList.cshtml" />
+    <Content Include="Views\DistanceDuration\View.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
