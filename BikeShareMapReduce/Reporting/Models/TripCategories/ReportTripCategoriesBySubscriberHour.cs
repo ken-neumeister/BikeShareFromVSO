@@ -19,7 +19,9 @@ NON EMPTY { ([Station Pair Distance].[Mile Categories].[Mile Categories].ALLMEMB
              [Subscribers].[Subscriber Info].[Subscriber Info].ALLMEMBERS * 
              [Time Table].[Hour2ofday].[Hour2ofday].ALLMEMBERS ) 
           } DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS 
-FROM [Bikeshare]";
+FROM ( SELECT ( { [Direction].[Direction].&[A-B] } ) ON COLUMNS 
+       FROM [Bikeshare]) 
+       WHERE ( [Direction].[Direction].&[A-B] )";
             return cmd;
         }
 
