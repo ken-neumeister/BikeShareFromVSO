@@ -14,16 +14,8 @@ namespace Reporting.Models.TripCategories
 
         public ViewWeekofyearGivenDistanceDurationCategories(string DistanceCategoryParm, string DurationCategoryParm)
         {
+
             string CommandText = @"SELECT 
-NON EMPTY { [Measures].[Bikes] } ON COLUMNS, 
-NON EMPTY { ([Station Pair Distance].[Mile Categories].[Mile Categories].ALLMEMBERS * 
-             [TripCat].[Trip Category].[Trip Category].ALLMEMBERS ) 
-          } DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS 
-FROM ( SELECT ( STRTOSET(@TripCatTripCategory, CONSTRAINED) ) ON COLUMNS 
-       FROM ( SELECT ( STRTOSET(@StationPairDistanceMileCategories, CONSTRAINED) ) ON COLUMNS 
-FROM [Bikeshare]))";
-            // corrected to not double counting
-            CommandText = @"SELECT 
 NON EMPTY { [Measures].[Bikes] } ON COLUMNS, 
 NON EMPTY { ([Station Pair Distance].[Mile Categories].[Mile Categories].ALLMEMBERS * 
              [TripCat].[Trip Category].[Trip Category].ALLMEMBERS ) 
@@ -75,24 +67,6 @@ FROM ( SELECT ( { [Direction].[Direction].&[A-B] } ) ON COLUMNS
             hierarchy.Add(new TableHour2());
 
             string CommandText = @"SELECT 
-NON EMPTY { [Measures].[Bikes] } ON COLUMNS, 
-NON EMPTY { ([Time Table].[Nameofday].[Nameofday].ALLMEMBERS * 
-             [Time Table].[Weekofyear].[Weekofyear].ALLMEMBERS *
-             [Subscribers].[Subscriber Info].[Subscriber Info].ALLMEMBERS * 
-             [Time Table].[Hour2ofday].[Hour2ofday].ALLMEMBERS ) 
-          } DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS 
-FROM ( SELECT ( STRTOSET(@TripCatTripCategory, CONSTRAINED) ) ON COLUMNS 
-       FROM ( SELECT ( STRTOSET(@StationPairDistanceMileCategories, CONSTRAINED) ) ON COLUMNS 
-              FROM [Bikeshare])) 
-WHERE ( IIF( STRTOSET(@StationPairDistanceMileCategories, CONSTRAINED).Count = 1, 
-             STRTOSET(@StationPairDistanceMileCategories, CONSTRAINED), 
-             [Station Pair Distance].[Mile Categories].currentmember ), 
-        IIF( STRTOSET(@TripCatTripCategory, CONSTRAINED).Count = 1, 
-             STRTOSET(@TripCatTripCategory, CONSTRAINED), 
-             [TripCat].[Trip Category].currentmember ) )";
-
-            // corrected to filter on one direction, compare with above
-            CommandText = @"SELECT 
 NON EMPTY { [Measures].[Bikes] } ON COLUMNS, 
 NON EMPTY { ([Time Table].[Nameofday].[Nameofday].ALLMEMBERS * 
              [Time Table].[Weekofyear].[Weekofyear].ALLMEMBERS * 
