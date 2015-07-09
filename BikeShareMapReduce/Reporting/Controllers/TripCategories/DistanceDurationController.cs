@@ -10,15 +10,32 @@ namespace Reporting.Controllers.TripCategories
         // GET: DistanceDuration
         public ActionResult Index()
         {
-            // worth a second try, bug was in different spot
-            List<BikeTable> hierarchy = new List<BikeTable>();
-            hierarchy.Add(new TableTripCategories()); // "Reporting.Models.TripCategories.TableTripCategory");
-            hierarchy.Add(new TableSubscriber()); //"Reporting.Models.TripCategories.TableSubscriber");
-            hierarchy.Add(new TableHour2()); // "Reporting.Models.TripCategories.TableHour2");
 
             ReportTripCategoriesBySubscriberHour report = new ReportTripCategoriesBySubscriberHour();
-            TableTripCategories model = (TableTripCategories)report.GetData(hierarchy);
+            // GetData may be overloaded to accept different parameters
+            TableTripCategories model = report.GetData();
             return View("View", model);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="DistanceCategory"></param>
+        /// <param name="DurationCategory"></param>
+        /// <returns>
+        /// View
+        /// </returns>
+        /// <remarks>
+        /// There should be a separate class for sub-report because eventually it may arrive from other referrers
+        /// The heirarchy list move to the view model itself
+        /// Thus, the class should support the same hierarchy but may have multiple getdata for different parameters
+        /// </remarks>
+        [HttpPost]
+        public ViewResult CategoryWeekdayDetails(string DistanceCategory, string DurationCategory)
+        {
+            ReportTripWeekdayBySubscriberHour report = new ReportTripWeekdayBySubscriberHour();
+            TableWeekday model = report.GetData(DistanceCategory, DurationCategory);
+            return View("CategoryWeekdayDetails", model);
         }
     }
 }

@@ -23,11 +23,14 @@ FROM [Bikeshare]";
             return cmd;
         }
 
-        public BikeTable GetData(List<BikeTable> hierarchy)
+        public TableTripCategories GetData()
         {
+            TableTripCategories model = new TableTripCategories();
+            // hierarchy properly defined within report
+            List<BikeTable> hierarchy = new List<BikeTable>();
+            hierarchy.Add(new TableSubscriber()); 
+            hierarchy.Add(new TableHour2()); 
 
-            BikeTable model = new BikeTable();
-            model = (BikeTable)Activator.CreateInstance(hierarchy[0].GetType()); //new TableTripCategories();
             DataSet ds = new DataSet();
             using (AdomdConnection conn = new AdomdConnection("Data Source=miranda;Initial Catalog=bikesMD2"))
             {
@@ -39,6 +42,21 @@ FROM [Bikeshare]";
                 }
                 conn.Close();
             }
+            PopulateModel(hierarchy, model, ds);
+
+            return (model);
+        }
+
+        // obsolete?
+        private static BikeTable GetTopModel(List<BikeTable> hierarchy)
+        {
+            BikeTable model = new BikeTable();
+            model = (BikeTable)Activator.CreateInstance(hierarchy[0].GetType()); 
+            return model;
+        }
+
+        private static void PopulateModel(List<BikeTable> hierarchy, BikeTable model, DataSet ds)
+        {
             // Single query returns one table
             DataTable dt = ds.Tables[0];
             // read column names to use to select correct fields for data
@@ -50,10 +68,8 @@ FROM [Bikeshare]";
             }
             foreach (DataRow dr in dt.Rows)
             {
-                model.UpdateForDR(hierarchy, 1, dr, colnbr);
+                model.UpdateForDR(hierarchy, 0, dr, colnbr);
             }
-
-            return (model);
         }
     }
 }
