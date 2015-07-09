@@ -12,13 +12,15 @@ namespace Reporting.BikesBase
 
         public float GetValue()
         {
-            return Convert.ToSingle(MemberCaption);
+            float bikes = 0;
+            float.TryParse(MemberCaption, out bikes);
+            return bikes;
         }
 
         internal void IncValue(float v)
         {
             string newcaption = (GetValue() + v).ToString();
-            MemberUniqueName.Replace(MemberCaption, newcaption);
+            // MemberUniqueName.Replace(MemberCaption, newcaption);
             MemberCaption = newcaption;
         }
 

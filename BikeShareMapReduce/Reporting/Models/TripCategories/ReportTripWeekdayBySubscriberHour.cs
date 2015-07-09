@@ -6,13 +6,13 @@ using System.Data;
 
 namespace Reporting.Models.TripCategories
 {
-    public class ViewWeekdayGivenDistanceDurationCategories : TableWeekday
+    public class ViewWeekofyearGivenDistanceDurationCategories : TableWeekofyear
     {
         public string DistanceCategory { get; set; }
         public string DurationCategory { get; set; }
         public float Bikes { get; set; }
 
-        public ViewWeekdayGivenDistanceDurationCategories(string DistanceCategoryParm, string DurationCategoryParm)
+        public ViewWeekofyearGivenDistanceDurationCategories(string DistanceCategoryParm, string DurationCategoryParm)
         {
             string CommandText = @"SELECT 
 NON EMPTY { [Measures].[Bikes] } ON COLUMNS, 
@@ -54,18 +54,20 @@ FROM [Bikeshare]))";
 
     public class ReportTripWeekdayBySubscriberHour
     {
-        public ViewWeekdayGivenDistanceDurationCategories GetData(string DistanceCategory, string DurationCategory)
+        public ViewWeekofyearGivenDistanceDurationCategories GetData(string DistanceCategory, string DurationCategory)
         {
-            ViewWeekdayGivenDistanceDurationCategories model = 
-                 new ViewWeekdayGivenDistanceDurationCategories(DistanceCategory, DurationCategory);
+            ViewWeekofyearGivenDistanceDurationCategories model = 
+                 new ViewWeekofyearGivenDistanceDurationCategories(DistanceCategory, DurationCategory);
 
             List<BikeTable> hierarchy = new List<BikeTable>();
+            hierarchy.Add(new TableWeekday());
             hierarchy.Add(new TableSubscriber());
             hierarchy.Add(new TableHour2());
 
             string CommandText = @"SELECT 
 NON EMPTY { [Measures].[Bikes] } ON COLUMNS, 
 NON EMPTY { ([Time Table].[Nameofday].[Nameofday].ALLMEMBERS * 
+             [Time Table].[Weekofyear].[Weekofyear].ALLMEMBERS *
              [Subscribers].[Subscriber Info].[Subscriber Info].ALLMEMBERS * 
              [Time Table].[Hour2ofday].[Hour2ofday].ALLMEMBERS ) 
           } DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS 

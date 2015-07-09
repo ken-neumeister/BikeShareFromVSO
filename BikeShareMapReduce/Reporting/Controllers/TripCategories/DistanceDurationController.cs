@@ -34,7 +34,7 @@ namespace Reporting.Controllers.TripCategories
         public ViewResult CategoryWeekdayDetails(string DistanceCategory, string DurationCategory)
         {
             ReportTripWeekdayBySubscriberHour report = new ReportTripWeekdayBySubscriberHour();
-            TableWeekday model = report.GetData(DistanceCategory, DurationCategory);
+            ViewWeekofyearGivenDistanceDurationCategories model = report.GetData(DistanceCategory, DurationCategory);
             return View("CategoryWeekdayDetails", model);
         }
     }

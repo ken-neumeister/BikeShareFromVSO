@@ -10,7 +10,9 @@ namespace Reporting.BikesBase
 
         public float GetValue()
         {
-            return Convert.ToSingle(MemberCaption);
+            float qtrmi = 0;
+            float.TryParse(MemberCaption, out qtrmi);
+            return qtrmi;
         }
 
     }

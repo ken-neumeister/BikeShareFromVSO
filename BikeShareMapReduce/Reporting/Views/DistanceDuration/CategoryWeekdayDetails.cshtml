@@ -1,4 +1,4 @@
-﻿@model Reporting.Models.TripCategories.ViewWeekdayGivenDistanceDurationCategories
+﻿@model Reporting.Models.TripCategories.ViewWeekofyearGivenDistanceDurationCategories
 @{
     ViewBag.Title = "Weekday Details for " + Model.Bikes.ToString("#,#.##") + " " + Model.DistanceCategory + " trips for " + Model.DurationCategory;
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -10,60 +10,87 @@
 <table id="fordatatable" class="table">
     <thead>
         <tr>
-            <th>Weekday</th>
+            <th>Week#</th>
             <th>Trips</th>
+            @{  string[] weekdays = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+                int wdindex = 0;
+            }
+            @foreach (string wd in weekdays)
+            {
+                <td>@wd</td>
+            }
         </tr>
     </thead>
     <tbody>
-        @foreach (Reporting.Models.TripCategories.RowWeekday row in Model)
+        @foreach (Reporting.Models.TripCategories.RowWeekofyear week in Model)
         {
             <tr>
-                <td>@row.WeekdayName.GetValue().ToString()</td>
-                <td>
-                    @row.Bikes.GetValue().ToString("#,#.##")
-                    @{
-                        int[] hours = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 };
-                        float[] casbikes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                        float[] regbikes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                        string[] subs_hours = new string[2];
-                        int isubs = 0;
-                        bool hasbikes = false;
-                        foreach (Reporting.Models.TripCategories.RowSubscriber s in row.ChildList)
-                        {
-                            hasbikes = true;
-                            foreach (Reporting.Models.TripCategories.RowHour2 h in s.ChildList)
+                <td>@week.Weekofyear.GetValue().ToString()</td>
+                <td style="text-align:right">@week.Bikes.GetValue().ToString("#,#.##")</td>
+                @{wdindex = 0;
+                }
+                @foreach (Reporting.Models.TripCategories.RowWeekday day in week.ChildList)
+                {
+                    while ((weekdays[wdindex] != day.WeekdayName.GetValue()) && (wdindex < 6))
+                    {
+                        wdindex += 1;
+                        <td style="text-align:right">0</td>
+                    }
+                    <td style="text-align:right">
+                        @day.Bikes.GetValue().ToString("#,#.##")
+
+
+
+                        @{
+                            int[] hours = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 };
+                            float[] casbikes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                            float[] regbikes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                            string[] subs_hours = new string[2];
+                            int isubs = 0;
+                            bool hasbikes = false;
+                            foreach (Reporting.Models.TripCategories.RowSubscriber s in day.ChildList)
                             {
-                                if (s.Subscriber.MemberCaption == "Registered")
+                                hasbikes = true;
+                                foreach (Reporting.Models.TripCategories.RowHour2 h in s.ChildList)
                                 {
-                                    regbikes[h.Hour2OfDay.GetValue() / 2] = h.Bikes.GetValue();
+                                    if (s.Subscriber.MemberCaption == "Registered")
+                                    {
+                                        regbikes[h.Hour2OfDay.GetValue() / 2] = h.Bikes.GetValue();
+                                    }
+                                    else
+                                    {
+                                        casbikes[h.Hour2OfDay.GetValue() / 2] = h.Bikes.GetValue();
+                                    }
                                 }
-                                else
+                                isubs += 1;
+                                if (isubs > 1)
                                 {
-                                    casbikes[h.Hour2OfDay.GetValue() / 2] = h.Bikes.GetValue();
+                                    break;
                                 }
                             }
-                            isubs += 1;
-                            if (isubs > 1)
+                            string[] hourbikes1 = new string[12];
+                            for (int i = 0; i < 12; i++)
                             {
-                                break;
+                                hourbikes1[i] = "[" + String.Join(",", hours[i], casbikes[i], regbikes[i]) + "]";
                             }
+                            string hourbikes = "[" + String.Join(",", hourbikes1) + "]";
                         }
-                        string[] hourbikes1 = new string[12];
-                        for (int i = 0; i < 12; i++)
+                        @if (hasbikes == true)
                         {
-                            hourbikes1[i] = "[" + String.Join(",", hours[i], casbikes[i], regbikes[i]) + "]";
+                            <div class="hrColumns" hourbikes="@hourbikes" style="width:200px;height:120px;text-align:right"></div>
                         }
-                        string hourbikes = "[" + String.Join(",", hourbikes1) + "]";
-                    }
-                    @if (hasbikes == true)
-                    {
-                        <div class="hrColumns" hourbikes="@hourbikes" style="width:200px;height:120px;"></div>
-                    }
-                    else
-                    {
-                        <div style="width:100px;height:60px;"></div>
-                    }
-            </td>
+                        else
+                        {
+                            <div style="width:100px;height:60px;"></div>
+                        }
+                    </td>
+                    wdindex += 1;
+                }
+                @while (wdindex < 7)
+                {
+                    wdindex += 1;
+                    <td style="text-align:right">0</td>
+                }
             </tr>
         }
     </tbody>

@@ -171,6 +171,7 @@
     <Compile Include="BikesBase\DimTimeHour2ofDay.cs" />
     <Compile Include="BikesBase\DimTimeWeekdayName.cs" />
     <Compile Include="BikesBase\DimTripCategory.cs" />
+    <Compile Include="BikesBase\DimTimeWeekofyear.cs" />
     <Compile Include="BikesBase\MeasureBikes.cs" />
     <Compile Include="BikesBase\VariableForBikesCube.cs" />
     <Compile Include="BikesBase\DimPairDistanceCategory.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="Models\TripCategories\RowSubscriber.cs" />
     <Compile Include="Models\TripCategories\RowTripCategories.cs" />
     <Compile Include="Models\TripCategories\RowWeekday.cs" />
+    <Compile Include="Models\TripCategories\RowWeekofyear.cs" />
     <Compile Include="Models\TripsByCatsTimeDist.cs" />
     <Compile Include="Models\TripsByDurDistCatListBuilder.cs" />
     <Compile Include="Views\ManageController.cs" />
