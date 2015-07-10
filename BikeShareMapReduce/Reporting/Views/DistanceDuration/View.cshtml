@@ -102,13 +102,15 @@
             google.setOnLoadCallback(drawCharts);
             var table = $('#fordatatable').DataTable();
             table.on('draw', function () {
-                var chart = $('div.hrColumns');
-                $.each(chart, drawHrColumns);
+                //var chart = $('div.hrColumns');
+                //$.each(chart, drawHrColumns);
+                drawCharts();
             })
         });
         function drawCharts() {
-            var chart = $('div.hrColumns');
-            $.each(chart, drawHrColumns);
+            //var chart = $('div.hrColumns');
+            //$.each(chart, drawHrColumns);
+            $('div.hrColumns').each(drawHrColumns);
         }
         function drawHrColumns() {
             var $this = $(this);
@@ -129,7 +131,11 @@
                     maxValue: 2,
                     minValue: 0,
                     ticks: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22],
-                    title: 'Hour'
+                    title: 'Hour',
+                    titleTextStyle: {
+                        fontName: 'Arial',
+                        italic : false
+                    }
                 },
                 vAxis: {
                     minValue: 0
