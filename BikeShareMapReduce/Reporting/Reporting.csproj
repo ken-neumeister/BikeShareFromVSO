@@ -182,6 +182,8 @@
     <Compile Include="Controllers\TripCategories\DistanceDurationController.cs" />
     <Compile Include="Controllers\TripsByCatsTimeDistController.cs" />
     <Compile Include="Controllers\TripsByDistDurCatListController.cs" />
+    <Compile Include="Controllers\LinqCategories\LinqCategoriesController.cs" />
+    <Compile Include="Models\LinqCategories\ReportUsingLinq.cs" />
     <Compile Include="Models\OlapQueryParameter.cs" />
     <Compile Include="Models\TripCategories\ReportTripCategoriesBySubscriberHour.cs" />
     <Compile Include="Models\TripCategories\ReportTripWeekdayBySubscriberHour.cs" />
@@ -273,6 +275,7 @@
     <Content Include="Views\TripsByDistDurCatList\TripsByDistDurCatList.cshtml" />
     <Content Include="Views\DistanceDuration\View.cshtml" />
     <Content Include="Views\DistanceDuration\CategoryWeekdayDetails.cshtml" />
+    <Content Include="Views\LinqCategories\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

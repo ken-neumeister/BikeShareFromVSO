@@ -1,0 +1,33 @@
+﻿@*@model Reporting.Models.LinqCategories.ReportUsingLinq*@
+@{
+    ViewBag.Title = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<ul>
+
+    @foreach (var item in Model.model)
+    {
+        <li>
+            @item.DistanceCategoryCaption @item.DurationCategoryCaption @item.TotalBikes.ToString("#,#.##")
+            <ul>
+                @foreach (var sub in item)
+                {
+                    <li>
+                        @sub.Subscriber @sub.TotalBikes.ToString("#,#.##")
+                        <ul>
+                            @foreach (var h2 in sub.Hour2)
+                            {
+                                <li>
+                                    @h2.Hour2 @h2.TotalBikes.ToString("#,#.##");
+                                </li>
+                            }
+                        </ul>
+                </li>
+                }
+            </ul>
+        </li>
+    }
+</ul>
