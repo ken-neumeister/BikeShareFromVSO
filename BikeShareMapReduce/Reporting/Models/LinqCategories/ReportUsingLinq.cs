@@ -10,40 +10,74 @@ using System.Web.WebPages.Html;
 
 namespace Reporting.Models.LinqCategories
 {
-    public class LinqResultTable
-    {
-        public string DistanceCategory { get; set; }
-        public string DistanceCategoryCaption { get; set; }
-        public string DurationCategory { get; set; }
-        public string DurationCategoryCaption { get; set; }
-        public string Subscriber { get; set; }
-        public string SubscriberCaption { get; set; }
-        public string Hour2 { get; set; }
-        public string Hour2Caption { get; set; }
-        public string Bikes { get; set; }
-        public float BikesValue ()
-        {
-            float retval = 0.0f;
-            float.TryParse(Bikes, out retval);
-            return retval;
-        }
-    }
+    //not needed
+    //public class LinqResultTable
+    //{
+    //    public string DistanceCategory { get; set; }
+    //    public string DistanceCategoryCaption { get; set; }
+    //    public string DurationCategory { get; set; }
+    //    public string DurationCategoryCaption { get; set; }
+    //    public string Subscriber { get; set; }
+    //    public string SubscriberCaption { get; set; }
+    //    public string Hour2 { get; set; }
+    //    public string Hour2Caption { get; set; }
+    //    public string Bikes { get; set; }
+    //    public float BikesValue ()
+    //    {
+    //        float retval = 0.0f;
+    //        float.TryParse(Bikes, out retval);
+    //        return retval;
+    //    }
+    //}
 
     public static class impFunctions
     {
-        public static float ToFloat(this string olapresult)
-        {
-            float retval = 0;
-            float.TryParse(olapresult, out retval);
-            return retval;
-        }
+        // Not needed
+        //public static float ToFloat(this string olapresult)
+        //{
+        //    float retval = 0;
+        //    float.TryParse(olapresult, out retval);
+        //    return retval;
+        //}
 
         public static ExpandoObject ToExpando(this object anonymousObject)
         {
             IDictionary<string, object> anonymousDictionary = HtmlHelper.AnonymousObjectToHtmlAttributes(anonymousObject);
             IDictionary<string, object> expando = new ExpandoObject();
             foreach (var item in anonymousDictionary)
-                expando.Add(item);
+            {
+                expando.Add(item);  // does not recurse into lists
+                // something like the following would be necessary, but item.Value is not correct handle to the underlying anonymous type
+
+                //if (item.Key == "subscribers")
+                //{
+
+                //    IDictionary<string, object> subDictionary = HtmlHelper.AnonymousObjectToHtmlAttributes(item.Value);
+                //    IDictionary<string, object> subExpando = new ExpandoObject();
+                //    foreach (var sub in subDictionary)
+                //    {
+                //        if (sub.Key == "Hour2")
+                //        {
+                //            IDictionary<string, object> hrDictionary = HtmlHelper.AnonymousObjectToHtmlAttributes(item.Value);
+                //            IDictionary<string, object> hrExpando = new ExpandoObject();
+                //            foreach (var hr in hrDictionary)
+                //            {
+                //                hrExpando.Add(hr);
+                //            }
+                //            subExpando.Add(sub.Key, hrExpando);
+                //        } 
+                //        else
+                //        {
+                //            subExpando.Add(sub);
+                //        }
+                //    }
+                //    expando.Add(item.Key, subExpando);
+                //} 
+                //else
+                //{
+                //    expando.Add(item);  // does not recurse into lists
+                //}
+            }
             return (ExpandoObject)expando;
         }
     } // See more at: http://www.dotnetfunda.com/articles/show/2655/binding-views-with-anonymous-type-collection-in-aspnet-mvc#sthash.tQPxvw88.dpuf
@@ -94,7 +128,7 @@ FROM ( SELECT ( { [Direction].[Direction].&[A-B] } ) ON COLUMNS
             // Linq using nested groups to build hierarchy, does this work?
             // if it works, can intellisense in Razor figure it out?
             var HourBikes = (from row in ds.Tables[0].AsEnumerable()
-                             select new LinqResultTable()
+                             select new //LinqResultTable()
                              {
                                  DistanceCategory = row.Field<string>("[Station Pair Distance].[Mile Categories].[Mile Categories].[MEMBER_UNIQUE_NAME]"),
                                  DurationCategory = row.Field<string>("[TripCat].[Trip Category].[Trip Category].[MEMBER_UNIQUE_NAME]"),
@@ -104,51 +138,57 @@ FROM ( SELECT ( { [Direction].[Direction].&[A-B] } ) ON COLUMNS
                                  DurationCategoryCaption = row.Field<string>("[TripCat].[Trip Category].[Trip Category].[MEMBER_CAPTION]"),
                                  SubscriberCaption = row.Field<string>("[Subscribers].[Subscriber Info].[Subscriber Info].[MEMBER_CAPTION]"),
                                  Hour2Caption = row.Field<string>("[Time Table].[Hour2ofday].[Hour2ofday].[MEMBER_UNIQUE_NAME]"),
-                                 Bikes = row.Field<string>("[Measures].[Bikes]")  // without data context, anon field is always a string
-                             }).ToArray();
+                                 Bikes = (row.Field<double>("[Measures].[Bikes]")).ToString()
+                             }); // .ToArray(); //forces immediate execution, not needed.
 
             model = (from row in HourBikes
                      group row by new
                      {
                          DistanceCategory = row.DistanceCategory,
-                         DurationCategory = row.DurationCategory
+                         DurationCategory = row.DurationCategory,
+                         DistanceCategoryCaption = row.DistanceCategoryCaption,
+                         DurationCategoryCaption = row.DurationCategoryCaption
                      } into Cat
                      select new
                      {
                          DistanceCategory = Cat.Key.DistanceCategory,
                          DurationCategory = Cat.Key.DurationCategory,
-                         DistanceCategoryCaption = Cat.Select(row => row.DistanceCategoryCaption), //  Field<string>("[Station Pair Distance].[Mile Categories].[Mile Categories].[MEMBER_CAPTION]")),
-                         DurationCategoryCaption = Cat.Select(row => row.DurationCategoryCaption), // Field<string>("[TripCat].[Trip Category].[Trip Category].[MEMBER_CAPTION]")),
-                         // Needs to convert string to float, sum, and then convert to string.  This doesn't work.
-                         TotalBikes = (Cat.Sum(row => row.BikesValue())).ToString("#,#.##"), // Field<string>("[Measures].[Bikes]")),
+                         DistanceCategoryCaption = Cat.Key.DistanceCategoryCaption, 
+                         DurationCategoryCaption = Cat.Key.DurationCategoryCaption,
+                         // BikeValueList = (Cat.Select(row => row.Bikes)), // generates list of string values that can be summed later
+                         TotalBikes = (Cat.Sum(row => Convert.ToDouble(row.Bikes))).ToString(),
                          subscribers = from srow in HourBikes
-                                       where Cat.Key.DistanceCategory == srow.DistanceCategory // Field<string>("[Station Pair Distance].[Mile Categories].[Mile Categories].[MEMBER_UNIQUE_NAME]")
-                                          && Cat.Key.DurationCategory == srow.DurationCategory // Field<string>("[TripCat].[Trip Category].[Trip Category].[MEMBER_UNIQUE_NAME]")
+                                       where Cat.Key.DistanceCategory == srow.DistanceCategory 
+                                          && Cat.Key.DurationCategory == srow.DurationCategory 
                                        group srow by new
                                        {
-                                           Subsciber = srow.Subscriber //Field<string>("[Subscribers].[Subscriber Info].[Subscriber Info].[MEMBER_UNIQUE_NAME]")
+                                           Subsciber = srow.Subscriber, 
+                                           SubscriberCaption = srow.SubscriberCaption
                                        } into Scat
                                        select new
                                        {
                                            Subscriber = Scat.Key.Subsciber,
-                                           SubscriberCaption = Scat.Select(srow => srow.SubscriberCaption), //Field<string>("[Subscribers].[Subscriber Info].[Subscriber Info].[MEMBER_CAPTION]")),
-                                           TotalBikes = (Scat.Sum(row => row.BikesValue())).ToString("#,#.##"),
+                                           SubscriberCaption = Scat.Key.SubscriberCaption, 
+                                           // BikeValueList = (Scat.Select(row => row.Bikes)),
+                                           TotalBikes = (Scat.Sum(row => Convert.ToDouble(row.Bikes))).ToString("#,#.##"),
                                            Hour2 = from hrow in HourBikes
-                                                   where Cat.Key.DistanceCategory == hrow.DistanceCategory //Field<string>("[Station Pair Distance].[Mile Categories].[Mile Categories].[MEMBER_UNIQUE_NAME]")
-                                                      && Cat.Key.DurationCategory == hrow.DurationCategory // Field<string>("[TripCat].[Trip Category].[Trip Category].[MEMBER_UNIQUE_NAME]")
-                                                      && Scat.Key.Subsciber == hrow.Subscriber // Field<string>("[Subscribers].[Subscriber Info].[Subscriber Info].[MEMBER_UNIQUE_NAME]")
+                                                   where Cat.Key.DistanceCategory == hrow.DistanceCategory 
+                                                      && Cat.Key.DurationCategory == hrow.DurationCategory 
+                                                      && Scat.Key.Subsciber == hrow.Subscriber 
                                                    group hrow by new
                                                    {
-                                                       Hour2 = hrow.Hour2 // Field<string>("[Time Table].[Hour2ofday].[Hour2ofday].[MEMBER_UNIQUE_NAME]")
+                                                       Hour2 = hrow.Hour2,
+                                                       Hour2Caption = hrow.Hour2Caption
                                                    } into Hcat
                                                    select new
                                                    {
                                                        Hour2 = Hcat.Key.Hour2,
-                                                       Hour2Caption = Hcat.Select(hrow => hrow.Hour2Caption), //Field<string>("[Time Table].[Hour2ofday].[Hour2ofday].[MEMBER_CAPTION]")),
-                                                       TotalBikes = (Hcat.Sum(row => row.BikesValue())).ToString("#,#.##") //GetValue(hrow.Field<string>("[Measures].[Bikes]")))
+                                                       Hour2Caption = Hcat.Key.Hour2Caption,
+                                                       // BikeValueList = (Hcat.Select(row => row.Bikes)), 
+                                                       TotalBikes = (Hcat.Sum(row => Convert.ToDouble(row.Bikes))).ToString()
                                                    }
                                        }
-                     }).AsEnumerable(); //.Select(c=>c.ToExpando());
+                     }).AsEnumerable().Select(c=>c.ToExpando());
             Title = title;
             // return model;
         }

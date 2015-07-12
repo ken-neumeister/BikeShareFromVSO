@@ -7,27 +7,61 @@
 <h2>@ViewBag.Title</h2>
 
 <ul>
+    @{
+        float bikes;
+        float bikenbr;
+    }
 
     @foreach (var item in Model.model)
     {
         <li>
-            @item.DistanceCategoryCaption @item.DurationCategoryCaption @item.TotalBikes.ToString("#,#.##")
-            <ul>
-                @foreach (var sub in item)
+            @item.DistanceCategoryCaption @item.DurationCategoryCaption @Convert.ToDouble(item.TotalBikes).ToString("#,#.##") 
+            @*@{  bikes = 0;
+                bikenbr = 0;
+                foreach (string bikeval in item.BikeValueList)
+                {
+                    bikenbr = 0;
+                    float.TryParse(bikeval, out bikenbr);
+                    bikes += bikenbr;
+                }
+            }
+            @bikes.ToString("#,#.##");*@
+            @*<ul>
+                @foreach (var sub in item.subscribers)
                 {
                     <li>
-                        @sub.Subscriber @sub.TotalBikes.ToString("#,#.##")
-                        <ul>
+                        @sub.Subscriber @Convert.ToDouble(item.TotalBikes).ToString("#,#.##")*@
+                        @*@{  bikes = 0;
+                            bikenbr = 0;
+                            foreach (string bikeval in sub.BikeValueList)
+                            {
+                                bikenbr = 0;
+                                float.TryParse(bikeval, out bikenbr);
+                                bikes += bikenbr;
+                            }
+                        }
+                        @bikes.ToString("#,#.##");*@
+                        @*<ul>
                             @foreach (var h2 in sub.Hour2)
                             {
                                 <li>
-                                    @h2.Hour2 @h2.TotalBikes.ToString("#,#.##");
-                                </li>
+                                    @h2.Hour2 @Convert.ToDouble(item.TotalBikes).ToString("#,#.##")*@
+                                    @*@{  bikes = 0;
+                                        bikenbr = 0;
+                                        foreach (string bikeval in h2.BikeValueList)
+                                        {
+                                            bikenbr = 0;
+                                            float.TryParse(bikeval, out bikenbr);
+                                            bikes += bikenbr;
+                                        }
+                                    }
+                                    @bikes.ToString("#,#.##");*@
+                                @*</li>
                             }
                         </ul>
-                </li>
-                }
-            </ul>
+                    </li>
+                            }
+            </ul>*@
         </li>
-    }
+                            }
 </ul>
